@@ -6,8 +6,6 @@ date: '2022-07-11'
 output: html_document
 ---
 
-lalala
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -23,7 +21,7 @@ library(tidyverse, readr, readxl, remotes, dplyr, janitor, correlation, haven, p
 ```
 
 
-As this is the first set exercises in this course, it is quite easy and short. Its purpose is also to get used to this exercise format and, more importantly, to get a first feeling for working with `R` and *RStudio*.
+As this is the first set of exercises in this course, it is quite easy and short. Its purpose is also to get used to this exercise format and, more importantly, to get a first feeling for working with `R` and *RStudio*.
 
 *Note*: You can find the solutions for this exercise as well as all other exercises in the `solutions` folder in the repo/directory that contains the course materials.  You can easily copy code from these solution files by clicking on the small blue clipboard icon in the upper right corner of the solution boxes showing the code.
 
