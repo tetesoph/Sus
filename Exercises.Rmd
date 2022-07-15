@@ -340,7 +340,7 @@ You need the `haven` package for this. The file should be stored in the `data` f
 
 ```{r load_gp, solution = TRUE}
 library(haven)
-Allbus <- read_dta("H:/RWorkshop_SuSch/Data/ZA5270_v2-0-0.dta")
+Allbus <- read_dta("ZA5280_v1-0-0.dta")
 ```
 
 Unlike in flat files, such as CSV, the variables now have labels.
@@ -358,14 +358,14 @@ library(sjlabelled)
 get_label(Allbus[1:10])
 ```
 
-Unfortunately, it's all in German. Imagine you are an education researcher working on a publication in English, and you are interested in the variable `education_cat`. So you may want to consider translating the variable into English.
+Unfortunately, it's all in German. Imagine you are an education researcher working on a publication in English, and you are interested in the variable `pa01`. So you may want to consider translating the variable to English.
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-Change the variable label of `pa01` from "LINKS-RECHTS-SELBSTEINSTUFUNG, BEFR." to "left-right self placement".
+Change the variable label of `pa01` from "LINKS-RECHTS-SELBSTEINSTUFUNG, BEFR." to "left-right self-assessment".
 ```
 
 ```{block, opts.label = "clues"}
-You can, again, use a frunction from `sjlabelled` for this.
+You can, again, use a function from `sjlabelled` for this.
 ```
 
 ```{r changevarlabel, solution = TRUE, message = FALSE}
