@@ -168,7 +168,7 @@ cool_numeric_vector
 Now, create a character vector with four distinct strings.
 ```
 
-## Idea:*six* distinct strings right?
+### ANNOTATION:*six* distinct strings right?
 
 ```{block, opts.label = "clues"} 
 Strings or characters have to be enclosed by quotation marks (`""` or `''`).
@@ -221,7 +221,10 @@ List elements are accessed with `[[]]`.
 
 ```{r fifth.exercise, solution = TRUE}
 cool_data_frame <- as.data.frame(cool_list[[3]])
+cool_data_frame
 ```
+
+### I think it would be nice to display the different outcomes of 1. setup names and 2. changed variable names in 'cool_data_frame'
 
 ```{block, box.title = "6", box.body = list(fill = "white"), box.icon = "fa-star"}
 Add some column names (e.g., "first" and "second") for the two columns of the data frame.
@@ -236,7 +239,7 @@ names(cool_data_frame) <- c("one", "two")
 cool_data_frame
 ```
 
-## Idea: call the variables 'first' and 'second' as stated in the description.
+### AN: I called the variables 'first' and 'second' as stated in the description.
 ```{r sixth.exercise, solution = TRUE}
 names(cool_data_frame) <- c("first", "second")
 cool_data_frame
@@ -280,7 +283,7 @@ titanic <-
   )
 ```
 
-We have already worked with the *Titanic* data quite a bit. Let's import some other data for a change.
+We have already worked with the *titanic* data quite a bit. Let's import some other data for a change.
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
 Import the `.xlsx` file containing *Gapminder* data on GDP from the `data` folder.
