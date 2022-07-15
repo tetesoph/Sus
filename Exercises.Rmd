@@ -454,11 +454,11 @@ gp_covid_trust_german_institutions <- Allbus[, c("pt01",
 gp_covid_trust_german_institutions  <- subset(Allbus, TRUE, select = c(pt01:pt20))
 ```
 
-
-## Idee
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
 Use a function from the `dplyr` package to create a new object named `Allbus_info` that only contains the (binary) variables that asked about the use of different devices for the individual Internet consumption. Again, you can consult the code book to find the right variable names (search for "XXX key word") or have a look at the clue for this task, instead.
 ```
+
+### AN: Keywords ergänzen sobald codebook fertig ist
 
 ```{block, opts.label = "clues"}
 The first variable we want to select for our subset is named `lm27`, and the last one is `lm34`. They appear consecutively in the data set.
@@ -470,7 +470,7 @@ Allbus_info <- Allbus %>%
 ```
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-Again, using a function from the `tidyverse` package `dplyr`, select only the character variables from the `gp_covid` data set and assign them to an object named `gp_covid_char`.
+Again, using a function from the `tidyverse` package `dplyr`, select only the character variables from the `Allbus` data set and assign them to an object named `Allbus_char`.
 ```
 
 ```{block, opts.label = "clues"}
@@ -482,7 +482,6 @@ Allbus_char <-Allbus %>%
   select(where(is.character))
 ```
 
-### Idee
 ```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
 After creating subsets of variables, let's now rename those variables. 
 First, rename the variables `lm27` to `internet_use_pc`, `lm28` to `internet_use_laptop`, and `lm29` to `internet_use_tablet` using `base R`. 
@@ -500,7 +499,7 @@ colnames(Allbus)[colnames(Allbus) == "lm27"] <- "internet_use_pc"
 colnames(Allbus)[colnames(Allbus) == "lm28"] <- "internet_use_laptop"
 colnames(Allbus)[colnames(Allbus) == "lm29"] <- "internet_use_tablet"
 # tidyverse (dplyr)
-gp_covid_info <- Allbus %>% 
+Allbus_info <- Allbus %>% 
   rename(internet_use_smartphone = lm30,
          internet_use_TV = lm31,
          internet_use_playstation = lm32,
@@ -509,7 +508,7 @@ gp_covid_info <- Allbus %>%
 ```
 
 ```{block, box.title = "6", box.body = list(fill = "white"), box.icon = "fa-star"}
-As the final task in this set of exercises, do the previous selection and renaming procedure using `dplyr` functions again for the `gp_covid_info` object, but this time in one step.
+As the final task in this set of exercises, do the previous selection and renaming procedure using `dplyr` functions again for the `Allbus_info` object, but this time in one step.
 ```
 
 ```{block, opts.label = "clues"}
@@ -517,7 +516,7 @@ You can also rename variables within the `select()` command.
 ```
 
 ```{r sixth-exercise, solution = TRUE}
-gp_covid_info <- gp_covid %>% 
+Allbus_info <- Allbus %>% 
   select(internet_use_pc = lm27,
          internet_use_laptop = lm28,
          internet_use_tablet = lm29,
@@ -528,6 +527,7 @@ gp_covid_info <- gp_covid %>%
          internet_use_other = lm34)
 ```
 
+### AN/ Fehler - weil teile des ALlbus schon überschrieben sind aus der Aufgabe davor, kann Aufgabe 6 nicht durchlaufen ... LÖSUNG?
 
 # 2_1_2 Filter, Arrange
 
@@ -537,9 +537,8 @@ As for the previous set of data wrangling exercises, before we can begin, we nee
 
 ```{r read-data, message = F}
 library(tidyverse)
-gp_covid <- read_csv2("./data/XXXXX.csv")
+Allbus <- read_dta("ZA5280_v1-0-0.dta")
 ```
-
 
 ###Idee
 
@@ -548,7 +547,7 @@ As a first exercise, using `base R`, let's create a new data set named `Allbus_s
 ```
 
 ```{block, opts.label = "clues"}
-The variable representing marital status is named `mstat` and the value indicating that the respondent is married is 5 *(?)*. Remember that there are 2 options in `base R` for filtering rows (the same ones as for selecting columns).
+The variable representing marital status is named `mstat` and the value indicating that the respondent is married is 5. Remember that there are 2 options in `base R` for filtering rows (the same ones as for selecting columns).
 ```
 
 ```{r first-exercise, solution = TRUE}
@@ -559,7 +558,7 @@ Allbus_single <- subset(Allbus, mstat == 5)
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
-Now, let's use the `dplyr` function for filtering rows: Create an object named `Allbus_male_sober_driver` that only contains respondents who report that they are male as well as never having driven a car while being drunk in the past.
+Now, let's use the `dplyr` function for filtering rows: Create an object named `Allbus_male_sober_driver` that only contains respondents who report that they are male as well as never having driven a car whilst being drunk in the past.
 ```
 
 ```{block, opts.label = "clues"}
@@ -572,19 +571,17 @@ Allbus_male_sober_driver <- Allbus %>%
          cs02 == 1)
 ```
 
-
-## Idee - Internet use instead of age
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-Using the same function from `dplyr`, create another subset of cases called `Allbus_social_media_news` that only includes respondents that stated that they use social media between *three to five* days per week as a means of news source.
+Using the same function from `dplyr`, create another subset of cases called `Allbus_social_media_news` that only includes respondents that stated that they use social media between (inclusively) *three to five* days per week as a means of news source.
 ```
 
 ```{block, opts.label = "clues"}
-The variable we need for this is called `lm35` and the values of that variable we are looking for are 5 to 7 *(?)*. You can use the helper function `between()` here (remember that the values you provide to this function are inclusive).
+The variable we need for this is called `lm35` and the values of that variable we are looking for are 3 to 5. You can use the helper function `between()` here (remember that the values you provide to this function are inclusive).
 ```
 
 ```{r third-exercise, solution = TRUE}
 Allbus_social_media_news <- Allbus %>% 
-  filter(between(lm35, 5, 7))
+  filter(between(lm35, 3, 5))
 ```
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -592,12 +589,12 @@ Let's briefly turn back to `base R` for this task: Sort the `Allbus` data set in
 ```
 
 ```{block, opts.label = "clues"}
-You need the `base R` function `order()` here. You can check your result using `head()`. To limit the amount of output, you can subset columns using [ ] within the `head()` command (general life satisfaction is the *XXXXXXth* variable in the data set, so you could, e.g., subset columns 6:*XX*).
+You need the `base R` function `order()` here. You can check your result using `head()`. To limit the amount of output, you can subset columns using [ ] within the `head()` command (general life satisfaction is the *513th* variable in the data set, so you could, e.g., subset columns 510:*513*).
 ```
 
 ```{r fourth-exercise, solution = TRUE}
 Allbus <- Allbus[order(desc(Allbus$ls01)),]
-head(Allbus[, 6:XXXX])
+head(Allbus[, 510:513])
 ```
 
 ```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -627,7 +624,7 @@ Same procedure as before: Load the `tidyverse` package(s) and import the data an
 
 ```{r read-data, message = F}
 library(tidyverse)
-gp_covid <- read_csv2("./data/XXXXXXXX.csv")
+Allbus <- read_dta("ZA5280_v1-0-0.dta")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -662,11 +659,10 @@ Allbus <- Allbus %>%
                                `2` = 6,
                                `1` = 7))
 ```
+### AN: Fehler: Datentyp stimmt nicht, entweder anderer Datensatz oder umcodieren
 
-
-### TODO: check missing variable types
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-The variable we have just recoded still contains several values representing different types of missing values. Using the appropriate `dplyr` function, recode the following values as `NA` for the new `distrust_gov` variable: -99, -77, -33, and 98.
+The variable we have just recoded still contains several values representing different types of missing values. Using the appropriate `dplyr` function, recode the following values as `NA` for the new `distrust_gov` variable: -42, -11, and -9.
 ```
 
 ```{block, opts.label = "clues"}
@@ -675,10 +671,9 @@ To to this, we need to combine `mutate()` with the `dplyr` function for recoding
 
 ```{r third-exercise, solution = TRUE}
 Allbus <- Allbus %>% 
-  mutate(distrust_gov = na_if(distrust_gov, -99)) %>% 
-  mutate(distrust_gov = na_if(distrust_gov, -77)) %>% 
-  mutate(distrust_gov = na_if(distrust_gov, -33)) %>%
-  mutate(distrust_gov = na_if(distrust_gov, 98))
+  mutate(distrust_gov = na_if(distrust_gov, -42)) %>% 
+  mutate(distrust_gov = na_if(distrust_gov, -11)) %>% 
+  mutate(distrust_gov = na_if(distrust_gov, -9))
 ```
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -691,16 +686,16 @@ This time, we do not need the `mutate()` function.
 
 ###TODO: Check missing variable types
 ```{r fourth-exercise, solution = TRUE}
-Allbus <- Allbus %>% 
-  na_if(-99) %>% 
-  na_if(-77) %>% 
+Allbus <- Allbus %>%
+  na_if(-99) %>%
+  na_if(-77) %>%
   na_if(-33)
 ```
 
 ```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
 As `na_if()` only takes only takes single values as its second argument (i.e., the value to replace with `NA`), let's use a function from the `sjlabelled` function to achieve the same thing with fewer lines of code.
 ```
-
+#### ende
 ```{block, opts.label = "clues"}
 The function we are looking for can also be included in a pipe chain and takes a vector of values to be recoded as `NA` as its second (required) argument. 
 ```
