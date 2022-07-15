@@ -328,7 +328,7 @@ unicorn_sales <-
 
 # 1_2_3 Statistical Software Files
 
-In this set of exercises, we will work with files from statistical software. The first tasks are about importing data, while the later ones are about labelling and exporting.
+In this set of exercises, we will work with files from statistical software. The first tasks are about importing data, while the later ones are about labeling and exporting.
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Import the `.dta` version of the data from the *German General Social Survey - ALLBUS 2021*.
