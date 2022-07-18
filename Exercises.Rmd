@@ -540,7 +540,6 @@ library(tidyverse)
 Allbus <- read_dta("ZA5280_v1-0-0.dta")
 ```
 
-###Idee
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 As a first exercise, using `base R`, let's create a new data set named `Allbus_single_` that only contains data from respondents who reported being single.
@@ -982,11 +981,62 @@ standardized_vector %>%
 
 For this exercise, we will use the same subset of the *German General Social Survey - ALLBUS 2021* data as in the lecture. If you have stored that data set as an `.rds` file as shown in the slides, you can simply load it with the following command:
 
-*CHECK PATH*
 
 ```{r load}
-corona_survey <- readRDS("./data/corona_survey.rds")
+Allbus <- readRDS("Allbus.rds")
 ```
+
+```{r}
+# Preparation from lecture
+
+Allbus_subset <- Allbus %>% 
+  select(respid,
+         left_right = pa01,
+         
+         immigration_war_refugees =  mi05,
+         immigration_politically_persecuted =  mi06,
+         immigration_economic_reasons =  mi07,
+         immigration_EU_workers_EasternEurope =  mi08,
+         immigration_EU_workerst = mi09,
+         immigration_nonEU_workers =  mi10,
+         immigration_spouses_children =  mi11,
+         
+         trust_health_system = pt01,
+         trust_federal_constitutional_court = pt02,
+         trust_bundestag = pt03,
+         trust_local_administration = pt04,
+         trust_catholic_church = pt06,
+         trust_protestant_church = pt07,
+         trust_judiciary = pt08,
+         trust_television = pt09,
+         trust_newspaper = pt10,
+         trust_universities = pt11,
+         trust_federal_government = pt12,
+         trust_police = pt14,
+         trust_parties = pt15#,
+
+         
+#         info_nat_pub_br = hzcy084a,
+#         info_nat_np = hzcy086a,
+#         info_loc_np = hzcy089a,
+#         info_fb = hzcy090a,
+#         info_other_sm = hzcy091a
+)
+
+
+# measures - immigration (mi05-mi11) -> NEU weil nicht binary
+# sources - ??
+# trust - pt01-pt20
+
+Allbus_subset <- Allbus_subset %>%
+  rowwise() %>% 
+  mutate(sum_measures = sum(c_across(immigration_war_refugees:immigration_spouses_children)),
+  #       sum_sources = sum(c_across(info_nat_pub_br:info_other_sm)),
+         mean_trust = mean(c_across(trust_health_system:trust_parties), na.rm = T)) %>% 
+  ungroup()
+```
+
+
 
 If you have not saved the wrangled data as an `.rds` file yet, you need to go through the data wrangling pipeline shown in the EDA slides (again).
 
@@ -997,7 +1047,7 @@ if (!require(summarytools)) install.packages("summarytools")
 if (!require(psych)) install.packages("psych")
 ```
 
-###TODO: new variables with interesting summ stats
+### TODO: new variables with interesting summ stats
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Using a `base R` function, print some basic summary statistics for the variables `sum_sources` and `sum_measures`.
 ```
@@ -1005,7 +1055,8 @@ Using a `base R` function, print some basic summary statistics for the variables
 ```{block, opts.label = "clues"}
 We can use the `dplyr` function for selecting variables and pipe the result into the required function.
 ```
-###TODO
+
+### ABSPRACHE: muss mit Folien übereinstimmen!
 ```{r first-exercise, solution = TRUE}
 corona_survey %>% 
   select(starts_with("sum")) %>% 
@@ -1022,7 +1073,7 @@ All names of the variables we are interested in here start with "trust*(?)*". Yo
 
 ```{r second-exercise, solution = TRUE}
 library(psych)
-Allbus %>% 
+corona_survey %>% 
   select(starts_with("trust")) %>% 
   describe(skew = FALSE,
            IQR = TRUE)
@@ -1080,7 +1131,7 @@ corona_survey %>%
 We will continue to work with the same data as in the previous set of exercises. By now, you should (hopefully) have saved them as an `.rds` file and, hence, be able to easily load them (in case they are not already/still in your current `R` workspace/working environment).
 
 ```{r load}
-corona_survey <- readRDS("./data/corona_survey.rds")
+corona_survey <- readRDS("./data/Allbus_subset.rds")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
