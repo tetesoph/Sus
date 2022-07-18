@@ -1036,6 +1036,7 @@ Allbus_subset <- Allbus_subset %>%
   ungroup()
 ```
 
+### Problem: es gibt nicht viele binär codierte variablen...entweder so lassen oder zweimal den mean ausrechnen
 
 
 If you have not saved the wrangled data as an `.rds` file yet, you need to go through the data wrangling pipeline shown in the EDA slides (again).
@@ -1058,7 +1059,7 @@ We can use the `dplyr` function for selecting variables and pipe the result into
 
 ### ABSPRACHE: muss mit Folien übereinstimmen!
 ```{r first-exercise, solution = TRUE}
-corona_survey %>% 
+Allbus_subset %>% 
   select(starts_with("sum")) %>% 
   summary()
 ```
@@ -1068,19 +1069,19 @@ Using a function from the `psych` package, print the summary statistics for all 
 ```
 
 ```{block, opts.label = "clues"}
-All names of the variables we are interested in here start with "trust*(?)*". You can find information about the arguments of the `describe()` function in its help file (`?describe`).
+All names of the variables we are interested in here start with "trust". You can find information about the arguments of the `describe()` function in its help file (`?describe`).
 ```
 
 ```{r second-exercise, solution = TRUE}
 library(psych)
-corona_survey %>% 
+Allbus_subset %>% 
   select(starts_with("trust")) %>% 
   describe(skew = FALSE,
            IQR = TRUE)
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-Use a function from the `summarytools` package to get summary statistics for the following variables in your data set: `pa01` (left-right self-placement), `sum_measures` *?*, `mean_trust` *?*. Unlike in the lecture, however, we now want all stats (not just the "common" ones).
+Use a function from the `summarytools` package to get summary statistics for the following variables in your data set: `left_right` (left-right self-placement), `sum_measures`, `mean_trust`. Unlike in the lecture, however, we now want all stats (not just the "common" ones).
 ```
 
 ```{block, opts.label = "clues"}
@@ -1089,12 +1090,13 @@ You can check the arguments for the function we need via `?descr`.
 
 ```{r third-exercise, solution = TRUE, message = FALSE, warning = FALSE}
 library(summarytools)
-Allbus %>% 
-  select(pa01,
+Allbus_subset %>% 
+  select(left_right,
          sum_measures,
          mean_trust) %>%
   descr()
 ```
+### TODO
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
 Now, let's use functions from `dplyr` to create grouped summary statistics. Compute separate means for the variables `risk_self` and `risk_surroundings` for the different age groups in the data set. The resulting summary variables should be called `risk_self_mean` and `risk_surroundings_mean`. You should exclude respondents with missing values for the variables of interest.
@@ -1106,23 +1108,27 @@ You need to group and summarize the data. There are (at least) two different way
 
 ```{r fourth-exercise, solution = TRUE}
 # This is the option that requires more typing but is easier to code
-corona_survey %>% 
-  select(age_cat,
+Allbus_subset %>% 
+  select(agec,
          starts_with("risk")) %>% 
   drop_na() %>% 
-  group_by(age_cat) %>% 
-  summarize(risk_self_mean = mean(risk_self),
+  group_by(agec) %>% 
+  summarize(risk_self_mean = mean(lm19),
             risk_surroundings_mean = mean(risk_surroundings))
 # This is the more elegant but somewhat more difficult to code option
-# corona_survey %>%
-#   select(age_cat,
+# Allbus_subset %>%
+#   select(agec,
 #          starts_with("risk")) %>%
 #   drop_na() %>%
-#   group_by(age_cat) %>%
+#   group_by(agec) %>%
 #   summarize(across(starts_with("risk"),
 #                    list(mean = mean),
 #                    .names = "{col}_{fn}")) %>%
 #   ungroup()
+```
+
+```{r}
+saveRDS(corona_survey, "Allbus_subset.rds")
 ```
 
 
@@ -1131,7 +1137,7 @@ corona_survey %>%
 We will continue to work with the same data as in the previous set of exercises. By now, you should (hopefully) have saved them as an `.rds` file and, hence, be able to easily load them (in case they are not already/still in your current `R` workspace/working environment).
 
 ```{r load}
-corona_survey <- readRDS("./data/Allbus_subset.rds")
+Allbus_subset <- readRDS("Allbus_subset.rds")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1143,7 +1149,7 @@ The argument for including missing values in the resulting table is `useNA = "al
 ```
 
 ```{r first-exercise, solution = TRUE}
-table(corona_survey$education_cat, useNA = "always")
+table(Allbus_subset$education_cat, useNA = "always")
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1155,7 +1161,7 @@ You need to wrap `table()` into two other functions: One for creating the propor
 ```
 
 ```{r second-exercise, solution = TRUE}
-round(prop.table(table(corona_survey$sex)), 4)
+round(prop.table(table(Allbus_subset$sex)), 4)
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1167,7 +1173,7 @@ We first need to count the cases and then transform the resulting variable to ge
 ```
 
 ```{r third-exercise, solution = TRUE}
-corona_survey %>% 
+Allbus_subset %>% 
   count(sex) %>%
   mutate(proportion = n/sum(n)) %>% 
   ungroup()
