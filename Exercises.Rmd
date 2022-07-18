@@ -616,7 +616,6 @@ Allbus %>%
 
 # 2_1_3 Mutate variables, recoding, and missings
 
-*Why are we reloading the data set?* 
 
 In this final set of exercises for the data wrangling basics, we will transform and recode variables, and work with missing data. In the following exercises, we will focus on data wrangling functions from the `tidyverse`.
 
@@ -624,7 +623,7 @@ Same procedure as before: Load the `tidyverse` package(s) and import the data an
 
 ```{r read-data, message = F}
 library(tidyverse)
-Allbus <- read_dta("ZA5280_v1-0-0.dta")
+Allbus <- read_csv("H://Sus/ZA5280_v1-0-0.csv")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -659,7 +658,7 @@ Allbus <- Allbus %>%
                                `2` = 6,
                                `1` = 7))
 ```
-### AN: Fehler: Datentyp stimmt nicht, entweder anderer Datensatz oder umcodieren
+
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
 The variable we have just recoded still contains several values representing different types of missing values. Using the appropriate `dplyr` function, recode the following values as `NA` for the new `distrust_gov` variable: -42, -11, and -9.
@@ -673,11 +672,11 @@ To to this, we need to combine `mutate()` with the `dplyr` function for recoding
 Allbus <- Allbus %>% 
   mutate(distrust_gov = na_if(distrust_gov, -42)) %>% 
   mutate(distrust_gov = na_if(distrust_gov, -11)) %>% 
-  mutate(distrust_gov = na_if(distrust_gov, -9))
+  mutate(distrust_gov = na_if(distrust_gov, -9)) 
 ```
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-After recoding a set of values as `NA` for one variable, let's now do the same for the whole `Allbus` data frame. This time, however, we do not want to recode 98 as `NA` as it is a valid value for the `id` variable.
+After recoding a set of values as `NA` for one variable, let's now do the same for the whole `Allbus` data frame. However, we do not want to recode 98 as `NA` as it is a valid value for the `respid`` variable.
 ```
 
 ```{block, opts.label = "clues"}
@@ -693,9 +692,9 @@ Allbus <- Allbus %>%
 ```
 
 ```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
-As `na_if()` only takes only takes single values as its second argument (i.e., the value to replace with `NA`), let's use a function from the `sjlabelled` function to achieve the same thing with fewer lines of code.
+As `na_if()` only takes on single values as its second argument (i.e., the value to replace with `NA`), let's use a function from the `sjlabelled` function to achieve the same thing with fewer lines of code.
 ```
-#### ende
+
 ```{block, opts.label = "clues"}
 The function we are looking for can also be included in a pipe chain and takes a vector of values to be recoded as `NA` as its second (required) argument. 
 ```
@@ -803,7 +802,7 @@ Use the `median()` function to calculate an aggregated variable of all trust var
 ```
 
 ```{block, opts.label = "clues"}
-For this task you need to first need to change the data into a row-wise format. For creating the aggregate variable you need the `c_across()` function. Oh, and don't forget to ungroup your data at the end (of your pipe).
+For this task you need to first change the data into a row-wise format. For creating the aggregate variable you need the `c_across()` function. Oh, and don't forget to ungroup your data at the end (of your pipe).
 ```
 
 ```{r third-exercise, solution = TRUE}
@@ -830,16 +829,19 @@ table(Allbus$median_trust)
 ```{r read-data, message = F}
 library(tidyverse)
 library(sjlabelled)
+library(readr)
 Allbus <- 
-  read_csv2("./data/ZA5667_v1-1-0.csv") %>%
-  set_na(na = c(-99, -77, -33, 98))
+read_csv("H://Sus/ZA5280_v1-0-0.csv")%>%
+  set_na(na = c(-9, -7, -6, -8, -11, -32, -33, -41, -42, -88))
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Create a new binary variable called `married` in the `Allbus` data frame that has the value 1 if the individual is married + living together and 0 if not. 
 ```
 
-*IS THIS TRUE FOR aLLBUS2021?*
+```{r}
+table(Allbus$mstat)
+```
 
 ```{block, opts.label = "clues"}
 As there are no missing values in the variable, you can simply use `ifelse()` for this.
@@ -861,9 +863,9 @@ You can use the `between()` helper function in combination with the `dplyr` func
 ```{r second-exercise, solution = TRUE}
 Allbus <- Allbus %>% 
   mutate(age_3cat = case_when(
-    between(yborn, 1, 40) ~ "up to 40 years",
-    between(yborn, 41, 60) ~ "41 to 60 years",
-    yborn > 60 ~ "older than 60 years"
+    between(age, 1, 40) ~ "up to 40 years",
+    between(age, 41, 60) ~ "41 to 60 years",
+    age > 60 ~ "older than 60 years"
     ))
 ```
 
