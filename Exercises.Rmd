@@ -166,10 +166,8 @@ cool_numeric_vector
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
-Now, create a character vector with four distinct strings.
+Now, create a character vector with six distinct strings.
 ```
-
-### ANNOTATION:*six* distinct strings right?
 
 ```{block, opts.label = "clues"} 
 Strings or characters have to be enclosed by quotation marks (`""` or `''`).
@@ -1308,9 +1306,9 @@ So let's start with a simple task: creating a simple scatter plot. For this purp
 ```{r loadgpcovid, message=FALSE, eval=TRUE}
 library(dplyr)
 library(haven)
-gp_covid <- 
+Allbus <- 
   read_sav(
-    "./data/ZA5667_v1-1-0.sav"
+    "ZA5280_v1-0-0.sav"
   ) %>% 
   sjlabelled::set_na(na = c(-1:-99, 97:98))
 ```
