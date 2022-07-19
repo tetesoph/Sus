@@ -1303,7 +1303,7 @@ Allbus %>%
 
 Plotting data is fun. We also do it for data exploration (see the section on *Exploratory Data Analysis*). In these exercises, however, we just want to familiarize ourselves with some of the graphic facilities in R.
 
-So let's start with a simple task: creating a simple scatter plot. For this purpose, we first load the *GESIS Panel* COVID-19 survey data.
+So let's start with a simple task: creating a simple scatter plot. For this purpose, we first load the *German General Social Survey - ALLBUS 2021*.
 
 ```{r loadgpcovid, message=FALSE, eval=TRUE}
 library(dplyr)
@@ -1315,7 +1315,7 @@ gp_covid <-
   sjlabelled::set_na(na = c(-1:-99, 97:98))
 ```
 
-Now let's plot an actual variable from the dataset.
+Now let's plot an actual variable from the data set.
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Create a scatter plot for the variables `political_orientation` and `hzcy001a`.
