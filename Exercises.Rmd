@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+install.packages("remotes")
 library(tidyverse, readr, readxl, remotes, dplyr, janitor, correlation, haven, purrr, psych, summarytools, sjlabelled, janitor, correlation, effectsize, tidyr, ggplot2, easypackages, tibble, parameters, see, performance, sjPlot, report, broom, stargazer)
 ```
 
@@ -981,6 +982,8 @@ standardized_vector %>%
 
 For this exercise, we will use the same subset of the *German General Social Survey - ALLBUS 2021* data as in the lecture. If you have stored that data set as an `.rds` file as shown in the slides, you can simply load it with the following command:
 
+### ABSPRACHE: muss mit Folien übereinstimmen!
+
 
 ```{r load}
 Allbus <- readRDS("Allbus.rds")
@@ -1036,7 +1039,7 @@ Allbus_subset <- Allbus_subset %>%
   ungroup()
 ```
 
-### Problem: es gibt nicht viele binär codierte variablen...entweder so lassen oder zweimal den mean ausrechnen
+### Problem: es gibt nicht viele binär codierte variablen...entweder so lassen oder zweimal den mean ausrechnen, oder neue variable binär umcodieren
 
 
 If you have not saved the wrangled data as an `.rds` file yet, you need to go through the data wrangling pipeline shown in the EDA slides (again).
@@ -1048,16 +1051,15 @@ if (!require(summarytools)) install.packages("summarytools")
 if (!require(psych)) install.packages("psych")
 ```
 
-### TODO: new variables with interesting summ stats
+
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Using a `base R` function, print some basic summary statistics for the variables `sum_sources` and `sum_measures`.
+Using a `base R` function, print some basic summary statistics for the variable `sum_measures`.
 ```
 
 ```{block, opts.label = "clues"}
 We can use the `dplyr` function for selecting variables and pipe the result into the required function.
 ```
 
-### ABSPRACHE: muss mit Folien übereinstimmen!
 ```{r first-exercise, solution = TRUE}
 Allbus_subset %>% 
   select(starts_with("sum")) %>% 
@@ -1065,7 +1067,7 @@ Allbus_subset %>%
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
-Using a function from the `psych` package, print the summary statistics for all variables that assess how much people trust specific people or institutions. The summary statistics should include IQR but no measures of skew (and kurtosis).
+Using a function from the `psych` package, print the summary statistics for all variables that assess how much people trust specific GERMAN people or institutions (excluding EU institutions). The summary statistics should include IQR but no measures of skew (and kurtosis).
 ```
 
 ```{block, opts.label = "clues"}
@@ -1096,7 +1098,7 @@ Allbus_subset %>%
          mean_trust) %>%
   descr()
 ```
-### TODO
+
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
 Now, let's use functions from `dplyr` to create grouped summary statistics. Compute separate means for the variables `risk_self` and `risk_surroundings` for the different age groups in the data set. The resulting summary variables should be called `risk_self_mean` and `risk_surroundings_mean`. You should exclude respondents with missing values for the variables of interest.
@@ -1108,13 +1110,13 @@ You need to group and summarize the data. There are (at least) two different way
 
 ```{r fourth-exercise, solution = TRUE}
 # This is the option that requires more typing but is easier to code
-Allbus_subset %>% 
+Allbus %>% 
   select(agec,
-         starts_with("risk")) %>% 
+        ja04, ja05) %>% 
   drop_na() %>% 
   group_by(agec) %>% 
-  summarize(risk_self_mean = mean(lm19),
-            risk_surroundings_mean = mean(risk_surroundings))
+  summarize(prestige_mean = mean(ja04),
+            free_time_mean = mean(ja05))
 # This is the more elegant but somewhat more difficult to code option
 # Allbus_subset %>%
 #   select(agec,
@@ -1128,7 +1130,7 @@ Allbus_subset %>%
 ```
 
 ```{r}
-saveRDS(corona_survey, "Allbus_subset.rds")
+saveRDS(Allbus, "Allbus.rds")
 ```
 
 
@@ -1137,11 +1139,11 @@ saveRDS(corona_survey, "Allbus_subset.rds")
 We will continue to work with the same data as in the previous set of exercises. By now, you should (hopefully) have saved them as an `.rds` file and, hence, be able to easily load them (in case they are not already/still in your current `R` workspace/working environment).
 
 ```{r load}
-Allbus_subset <- readRDS("Allbus_subset.rds")
+Allbus <- readRDS("Allbus.rds")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Using `base R`, print a simple table with the frequencies of the variable `education_cat`. Also include the counts for missing values.
+Using `base R`, print a simple table with the frequencies of the variable `educ`. Also include the counts for missing values.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1149,7 +1151,7 @@ The argument for including missing values in the resulting table is `useNA = "al
 ```
 
 ```{r first-exercise, solution = TRUE}
-table(Allbus_subset$education_cat, useNA = "always")
+table(Allbus$educ, useNA = "always")
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1161,7 +1163,7 @@ You need to wrap `table()` into two other functions: One for creating the propor
 ```
 
 ```{r second-exercise, solution = TRUE}
-round(prop.table(table(Allbus_subset$sex)), 4)
+round(prop.table(table(Allbus$sex)), 4)
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1173,7 +1175,7 @@ We first need to count the cases and then transform the resulting variable to ge
 ```
 
 ```{r third-exercise, solution = TRUE}
-Allbus_subset %>% 
+Allbus %>% 
   count(sex) %>%
   mutate(proportion = n/sum(n)) %>% 
   ungroup()
@@ -1188,7 +1190,7 @@ Check the help file for the function to see how to exclude the totals from the o
 ```
 
 ```{r fourth-exercise, solution = TRUE}
-freq(corona_survey$age_cat,
+freq(Allbus$agec,
      totals = FALSE)
 ```
 
@@ -1198,7 +1200,7 @@ freq(corona_survey$age_cat,
 As before, we may need to load the data again, if they are not in our work space.
 
 ```{r load}
-corona_survey <- readRDS("./data/corona_survey.rds")
+Allbus <- readRDS("Allbus.rds")
 ```
 
 In case you have not done so yet, please also install `janitor` and `correlation`.
@@ -1209,17 +1211,26 @@ if (!require(summaryrtools)) install.packages("correlation")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-As a first exercise, use `base R` to create a cross tabulation for the variables `age_cat` (rows) and `choice_of_party` (columns) showing row percentages.
+As a first exercise, use `base R` to create a cross tabulation for the variables `agec` (age category, rows) and `pv01` (choice of party, columns) showing row percentages. Before you run the table, make sure to set all values to NA that do not correspond to a political party. 
 ```
 
 ```{block, opts.label = "clues"}
-We need to combine `round()`, `table()`, and `prop.table()` here, add an argument to `prop.table()` to get row totals, and transform the results to represent percentages.
+We need to combine `round()`, `table()`, and `prop.table()` here, add an argument to `prop.table()` to get row totals, and transform the results to represent percentages. Set the values `-50`, `42`, `90`, an `91` to NA.
 ```
 
 ```{r first-exercise, solution = TRUE}
-round(prop.table(table(corona_survey$age_cat, corona_survey$choice_of_party), 1)*100, 2)
-```
+install.packages("naniar")
+library(naniar)
 
+na_strings <- c(-50, 42, 90, 91)
+
+Allbus <- Allbus %>%
+  replace_with_na_at(.vars = "pv01",
+                     condition = ~.x %in% (na_strings))
+
+round(prop.table(table(Allbus$agec, Allbus$pv01), 1)*100, 2)
+```
+Allbus$pv01
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
 Now, let's use the `janitor` package to get the same results. 
 ```
@@ -1230,9 +1241,9 @@ We want to create a `tably()` object and add some additional functions to get th
 
 ```{r second-exercise, solution = TRUE}
 library(janitor)
-corona_survey %>% 
-  filter(!is.na(choice_of_party)) %>% 
-  tabyl(age_cat, choice_of_party) %>% 
+Allbus %>% 
+  filter(!is.na(pv01)) %>% 
+  tabyl(agec, pv01) %>% 
   adorn_percentages(denominator = "row") %>% 
   adorn_pct_formatting(digits = 2)
 ```
@@ -1246,14 +1257,14 @@ We do not need the percentage sign or the row percentages for this.
 ```
 
 ```{r third-exercise, solution = TRUE}
-corona_survey %>% 
-  filter(!is.na(choice_of_party)) %>% 
-  tabyl(age_cat, choice_of_party) %>% 
+Allbus %>% 
+  filter(!is.na(pv01)) %>% 
+  tabyl(agec, pv01) %>% 
   chisq.test()
 ```
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-Let's turn to correlations: Use the `correlation` package to calculate and print correlations between the following variables: `risk_self`, `risk_surround`, `sum_measures`, `sum_sources`
+Let's turn to correlations: Use the `correlation` package to calculate and print correlations between the following variables: `ja04`, `ja05`, `sum_measures`.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1262,11 +1273,10 @@ The name of the function you need is the same as that of the package we use here
 
 ```{r fourth-exercise, solution = TRUE, message=FALSE}
 library(correlation)
-corona_survey %>% 
-  select(risk_self,
-         risk_surroundings,
-         sum_measures,
-         sum_sources) %>% 
+Allbus %>% 
+  select(ja04,
+         ja05,
+         sum_measures) %>% 
   correlation()
 ```
 
@@ -1280,13 +1290,11 @@ You need to use group the data by `education_cat` before computing the correlati
 
 ```{r fifth-exercise, solution = TRUE, message=FALSE}
 library(correlation)
-corona_survey %>% 
-  select(education_cat,
-         risk_self,
-         risk_surroundings,
-         sum_measures,
-         sum_sources) %>% 
-  group_by(education_cat) %>% 
+Allbus %>% 
+  select(ja04,
+         ja05,
+         sum_measures) %>% 
+  group_by(educ) %>% 
   correlation()
 ```
 
