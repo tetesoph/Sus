@@ -223,8 +223,6 @@ cool_data_frame <- as.data.frame(cool_list[[3]])
 cool_data_frame
 ```
 
-### I think it would be nice to display the different outcomes of 1. setup names and 2. changed variable names in 'cool_data_frame'
-
 ```{block, box.title = "6", box.body = list(fill = "white"), box.icon = "fa-star"}
 Add some column names (e.g., "first" and "second") for the two columns of the data frame.
 ```
@@ -238,7 +236,6 @@ names(cool_data_frame) <- c("one", "two")
 cool_data_frame
 ```
 
-### AN: I called the variables 'first' and 'second' as stated in the description.
 ```{r sixth.exercise, solution = TRUE}
 names(cool_data_frame) <- c("first", "second")
 cool_data_frame
@@ -389,7 +386,7 @@ The `haven` package provides a function for writing such files that is called an
 ```{r exportstata, solution = TRUE, eval = FALSE}
 write_stata(Allbus, "Allbus_STATA_format.dta")
 ```
-### Question: Does this task still work? Because the data format is already .dta ...
+###  Question: Does this task still work? Because the data format is already .dta ...
 
 
 # 2_1_1 Selecting & renaming variables
@@ -427,7 +424,6 @@ Using `base R`, create a new object called `Allbus_trust` that contains all vari
 
 ### AN: insert a link leading to our own little translated codebook in the repo
 
-### AN/ Problem: Change to pt01-pt20 (problem: gaps in consecutive order e.g. pt05) - Trust variables in German institutions
 ```{block, opts.label = "clues"}
 The first variable we want to select for our subset is named `pt01`, and the last one is `pt20`. They appear consecutively in the data set. Remember that there are two options for selecting columns in `base R`: One is subsetting using [ ], the other is the `subset()` function.
 ```
@@ -526,7 +522,7 @@ Allbus_info <- Allbus %>%
          internet_use_other = lm34)
 ```
 
-### AN/ Fehler - weil teile des ALlbus schon überschrieben sind aus der Aufgabe davor, kann Aufgabe 6 nicht durchlaufen ... LÖSUNG?
+### Fehler - weil teile des Allbus schon überschrieben sind aus der Aufgabe davor, kann Aufgabe 6 nicht durchlaufen ... LÖSUNG?
 
 # 2_1_2 Filter, Arrange
 
@@ -541,7 +537,7 @@ Allbus <- read_dta("ZA5280_v1-0-0.dta")
 
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-As a first exercise, using `base R`, let's create a new data set named `Allbus_single_` that only contains data from respondents who reported being single.
+As a first exercise, using `base R`, let's create a new data set named `Allbus_single` that only contains data from respondents who reported being single.
 ```
 
 ```{block, opts.label = "clues"}
@@ -560,7 +556,7 @@ Now, let's use the `dplyr` function for filtering rows: Create an object named `
 ```
 
 ```{block, opts.label = "clues"}
-The names of the variables we need here are `sex` and `cs02` and the values we want to filter for are 1 (male), and 1 (never), respectively.
+The names of the variables we need here are `sex` and `cs02` (drunk driving) and the values we want to filter for are 1 (male), and 1 (never), respectively.
 ```
 
 ```{r second-exercise, solution = TRUE}
@@ -670,24 +666,26 @@ To to this, we need to combine `mutate()` with the `dplyr` function for recoding
 Allbus <- Allbus %>% 
   mutate(distrust_gov = na_if(distrust_gov, -42)) %>% 
   mutate(distrust_gov = na_if(distrust_gov, -11)) %>% 
-  mutate(distrust_gov = na_if(distrust_gov, -9)) 
+  mutate(distrust_gov = na_if(distrust_gov, -9))
+  
 ```
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-After recoding a set of values as `NA` for one variable, let's now do the same for the whole `Allbus` data frame. However, we do not want to recode 98 as `NA` as it is a valid value for the `respid`` variable.
+After recoding a set of values as `NA` for one variable, let's now do the same for the whole `Allbus` data frame. However, we do not want to recode 98 as `NA` as it is a valid value for the `respid` variable.
 ```
 
 ```{block, opts.label = "clues"}
 This time, we do not need the `mutate()` function.
 ```
 
-###TODO: Check missing variable types
 ```{r fourth-exercise, solution = TRUE}
 Allbus <- Allbus %>%
   na_if(-99) %>%
   na_if(-77) %>%
-  na_if(-33)
+  na_if(-33) %>%
 ```
+
+### AN: check file again for more NAs
 
 ```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
 As `na_if()` only takes on single values as its second argument (i.e., the value to replace with `NA`), let's use a function from the `sjlabelled` function to achieve the same thing with fewer lines of code.
@@ -697,8 +695,8 @@ As `na_if()` only takes on single values as its second argument (i.e., the value
 The function we are looking for can also be included in a pipe chain and takes a vector of values to be recoded as `NA` as its second (required) argument. 
 ```
 
+### AN: check file again for more NAs
 
-### TODO: Check missing variable types
 ```{r fifth-exercise, solution = TRUE}
 library(sjlabelled)
 Allbus <- Allbus %>% 
@@ -749,7 +747,7 @@ As always, first some prep work before we can work on the exercises: Load the pa
 library(tidyverse)
 library(sjlabelled)
 Allbus <- 
-  read_csv2("./data/ZA5667_v1-1-0.csv") %>%
+  read_csv("ZA5280_v1-0-0.csv") %>%
   set_na(na = c(-99, -77, -33, 98))
 ```
 
@@ -815,7 +813,6 @@ Allbus <-
       )
   ) %>% 
   ungroup()
-table(Allbus$median_trust)
 ```
 
 
@@ -830,15 +827,11 @@ library(sjlabelled)
 library(readr)
 Allbus <- 
 read_csv("H://Sus/ZA5280_v1-0-0.csv")%>%
-  set_na(na = c(-9, -7, -6, -8, -11, -32, -33, -41, -42, -88))
+  set_na(na = c(-9, -7, -6, -8, -11, -32, -33, -41, -42, -50, -88))
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Create a new binary variable called `married` in the `Allbus` data frame that has the value 1 if the individual is married + living together and 0 if not. 
-```
-
-```{r}
-table(Allbus$mstat)
 ```
 
 ```{block, opts.label = "clues"}
@@ -860,7 +853,7 @@ You can use the `between()` helper function in combination with the `dplyr` func
 
 ```{r second-exercise, solution = TRUE}
 Allbus <- Allbus %>% 
-  mutate(age_3cat = case_when(
+  mutate(age_cat = case_when(
     between(age, 1, 40) ~ "up to 40 years",
     between(age, 41, 60) ~ "41 to 60 years",
     age > 60 ~ "older than 60 years"
@@ -1180,7 +1173,7 @@ Allbus %>%
 ```
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-Use a function from the `summarytools` package to display the counts and percentages for the categories in the `age_cat` variable. The output should not include information about the totals.
+Use a function from the `summarytools` package to display the counts and percentages for the categories in the `agec` variable. The output should not include information about the totals.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1228,7 +1221,7 @@ Allbus <- Allbus %>%
 
 round(prop.table(table(Allbus$agec, Allbus$pv01), 1)*100, 2)
 ```
-Allbus$pv01
+
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
 Now, let's use the `janitor` package to get the same results. 
 ```
@@ -1260,6 +1253,8 @@ Allbus %>%
   tabyl(agec, pv01) %>% 
   chisq.test()
 ```
+
+### PROBLEM
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
 Let's turn to correlations: Use the `correlation` package to calculate and print correlations between the following variables: `ja04`, `ja05`, `sum_measures`.
