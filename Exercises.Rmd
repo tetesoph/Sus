@@ -6,15 +6,8 @@ date: '2022-07-11'
 output: html_document
 ---
 
-Check 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r}
-install.packages("remotes")
-library(tidyverse, readr, readxl, remotes, dplyr, janitor, correlation, haven, purrr, psych, summarytools, sjlabelled, janitor, correlation, effectsize, tidyr, ggplot2, easypackages, tibble, parameters, see, performance, sjPlot, report, broom, stargazer)
 ```
 
 
@@ -513,15 +506,15 @@ You can also rename variables within the `select()` command.
 ```
 
 ```{r sixth-exercise, solution = TRUE}
-Allbus_info <- Allbus %>% 
-  select(internet_use_pc = lm27,
-         internet_use_laptop = lm28,
-         internet_use_tablet = lm29,
-         internet_use_smartphone = lm30,
-         internet_use_TV = lm31,
-         internet_use_playstation = lm32,
-         internet_use_ebook = lm33,
-         internet_use_other = lm34)
+#Allbus_info <- Allbus %>% 
+#  select(internet_use_pc = lm27,
+#         internet_use_laptop = lm28,
+#         internet_use_tablet = lm29,
+#         internet_use_smartphone = lm30,
+#         internet_use_TV = lm31,
+#         internet_use_playstation = lm32,
+#         internet_use_ebook = lm33,
+#         internet_use_other = lm34)
 ```
 
 ### Fehler - weil teile des Allbus schon überschrieben sind aus der Aufgabe davor, kann Aufgabe 6 nicht durchlaufen ... LÖSUNG?
@@ -684,7 +677,7 @@ This time, we do not need the `mutate()` function.
 Allbus <- Allbus %>%
   na_if(-99) %>%
   na_if(-77) %>%
-  na_if(-33) %>%
+  na_if(-33)
 ```
 
 ### AN: check file again for more NAs
@@ -988,6 +981,12 @@ Allbus <- readRDS("Allbus.rds")
 Allbus_subset <- Allbus %>% 
   select(respid,
          left_right = pa01,
+         agec,
+         respected_profession = ja04,
+         free_time_profession = ja05,
+         educ,
+         sex,
+         pv01,
          
          immigration_war_refugees =  mi05,
          immigration_politically_persecuted =  mi06,
@@ -1030,8 +1029,39 @@ Allbus_subset <- Allbus_subset %>%
   #       sum_sources = sum(c_across(info_nat_pub_br:info_other_sm)),
          mean_trust = mean(c_across(trust_health_system:trust_parties), na.rm = T)) %>% 
   ungroup()
+
+
+Allbus_subset <- Allbus_subset %>% 
+    mutate(sex = recode_factor(sex,
+                               `1` = "male",
+                               `2` = "female",
+                               `3` = "diverse"),
+           age_cat = recode_factor(agec,
+                                   `1`= "Less than 30 years old",
+                                   `2`= "Between 30 and 44 years old",
+                                   `3` = "Between 45 and 59 years old",
+                                   `4` = "Between 60 and 74 years old",
+                                   `5` = "Between 75 and 89 years old",
+                                   `6` = "More than 89 years old",
+                                   .ordered = TRUE),
+           educ = recode_factor(educ,
+                                   `1`= "Pupil",
+                                   `2`= "No Degree",
+                                   `3` = "Elementary school",
+                                   `4` = "Intermediate degree",
+                                   `5` = "Technical college",
+                                   `6` = "Abitur",
+                                   .ordered = TRUE),
+           choice_of_party = recode_factor(pv01,
+                                           `1`= "CDU/CSU",
+                                           `2`= "SPD",
+                                           `3` = "AfD",
+                                           `4` = "FDP",
+                                           `5` = "Linke",
+                                           `6` = "Gruene"))
 ```
 
+table(Allbus_subset$sex)
 ### Problem: es gibt nicht viele binär codierte variablen...entweder so lassen oder zweimal den mean ausrechnen, oder neue variable binär umcodieren
 
 
@@ -1103,7 +1133,7 @@ You need to group and summarize the data. There are (at least) two different way
 
 ```{r fourth-exercise, solution = TRUE}
 # This is the option that requires more typing but is easier to code
-Allbus %>% 
+Allbus_subset %>% 
   select(agec,
         ja04, ja05) %>% 
   drop_na() %>% 
@@ -1123,7 +1153,7 @@ Allbus %>%
 ```
 
 ```{r}
-saveRDS(Allbus, "Allbus.rds")
+saveRDS(Allbus_subset, "Allbus_subset.rds")
 ```
 
 
@@ -1132,7 +1162,7 @@ saveRDS(Allbus, "Allbus.rds")
 We will continue to work with the same data as in the previous set of exercises. By now, you should (hopefully) have saved them as an `.rds` file and, hence, be able to easily load them (in case they are not already/still in your current `R` workspace/working environment).
 
 ```{r load}
-Allbus <- readRDS("Allbus.rds")
+Allbus_subset <- readRDS("Allbus_subset.rds")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1144,7 +1174,7 @@ The argument for including missing values in the resulting table is `useNA = "al
 ```
 
 ```{r first-exercise, solution = TRUE}
-table(Allbus$educ, useNA = "always")
+table(Allbus_subset$educ, useNA = "always")
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1156,7 +1186,7 @@ You need to wrap `table()` into two other functions: One for creating the propor
 ```
 
 ```{r second-exercise, solution = TRUE}
-round(prop.table(table(Allbus$sex)), 4)
+round(prop.table(table(Allbus_subset$sex)), 4)
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1168,7 +1198,7 @@ We first need to count the cases and then transform the resulting variable to ge
 ```
 
 ```{r third-exercise, solution = TRUE}
-Allbus %>% 
+Allbus_subset %>% 
   count(sex) %>%
   mutate(proportion = n/sum(n)) %>% 
   ungroup()
@@ -1183,17 +1213,18 @@ Check the help file for the function to see how to exclude the totals from the o
 ```
 
 ```{r fourth-exercise, solution = TRUE}
-freq(Allbus$agec,
+freq(Allbus_subset$age_cat,
      totals = FALSE)
 ```
 
+### Question: new variables are not saved in the 'Allbus_subset' data set is this desired?
 
 # 3_1_3 Crosstabs & correlations
 
 As before, we may need to load the data again, if they are not in our work space.
 
 ```{r load}
-Allbus <- readRDS("Allbus.rds")
+Allbus_subset <- readRDS("Allbus_subset.rds")
 ```
 
 In case you have not done so yet, please also install `janitor` and `correlation`.
@@ -1217,11 +1248,11 @@ library(naniar)
 
 na_strings <- c(-50, 42, 90, 91)
 
-Allbus <- Allbus %>%
-  replace_with_na_at(.vars = "pv01",
+Allbus_subset <- Allbus_subset %>%
+  replace_with_na_at(.vars = "choice_of_party",
                      condition = ~.x %in% (na_strings))
 
-round(prop.table(table(Allbus$agec, Allbus$pv01), 1)*100, 2)
+round(prop.table(table(Allbus_subset$age_cat, Allbus_subset$choice_of_party), 1)*100, 2)
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1234,9 +1265,9 @@ We want to create a `tably()` object and add some additional functions to get th
 
 ```{r second-exercise, solution = TRUE}
 library(janitor)
-Allbus %>% 
-  filter(!is.na(pv01)) %>% 
-  tabyl(agec, pv01) %>% 
+Allbus_subset %>% 
+  filter(!is.na(choice_of_party)) %>% 
+  tabyl(age_cat, choice_of_party) %>% 
   adorn_percentages(denominator = "row") %>% 
   adorn_pct_formatting(digits = 2)
 ```
@@ -1250,13 +1281,11 @@ We do not need the percentage sign or the row percentages for this.
 ```
 
 ```{r third-exercise, solution = TRUE}
-Allbus %>% 
-  filter(!is.na(pv01)) %>% 
-  tabyl(agec, pv01) %>% 
+Allbus_subset %>% 
+  filter(!is.na(age_cat)) %>%
+  tabyl(age_cat, choice_of_party) %>% 
   chisq.test()
 ```
-
-### PROBLEM
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
 Let's turn to correlations: Use the `correlation` package to calculate and print correlations between the following variables: `ja04`, `ja05`, `sum_measures`.
@@ -1268,9 +1297,9 @@ The name of the function you need is the same as that of the package we use here
 
 ```{r fourth-exercise, solution = TRUE, message=FALSE}
 library(correlation)
-Allbus %>% 
-  select(ja04,
-         ja05,
+Allbus_subset %>% 
+  select(respected_profession,
+         free_time_profession,
          sum_measures) %>% 
   correlation()
 ```
@@ -1285,10 +1314,11 @@ You need to use group the data by `education_cat` before computing the correlati
 
 ```{r fifth-exercise, solution = TRUE, message=FALSE}
 library(correlation)
-Allbus %>% 
-  select(ja04,
-         ja05,
-         sum_measures) %>% 
+Allbus_subset %>% 
+  select(respected_profession,
+         free_time_profession,
+         sum_measures,
+         educ) %>% 
   group_by(educ) %>% 
   correlation()
 ```
