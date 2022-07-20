@@ -982,6 +982,7 @@ Allbus_subset <- Allbus %>%
   select(respid,
          left_right = pa01,
          agec,
+         dh01,
          respected_profession = ja04,
          free_time_profession = ja05,
          educ,
@@ -1560,7 +1561,7 @@ This time we are going to use the [*Gapminder*](https://www.gapminder.org/) data
 library(dplyr)
 library(tidyr)
 gapminder_ggplot_input <-
-  readr::read_csv("./data/gdppercapita_us_inflation_adjusted.csv") %>%
+  readr::read_csv("gdppercapita_us_inflation_adjusted.csv") %>%
   pivot_longer(-country, names_to = "year", values_to = "GDP") %>% 
   filter(!is.na(GDP)) %>%
   arrange(year, GDP) %>%
@@ -1668,7 +1669,7 @@ ggplot(
 As in the slides, we will, again, use the data from the *GESIS Panel Special Survey on the Coronavirus SARS-CoV-2 Outbreak in Germany*. If they are not (still/yet) in your workspace, you first need to load them.
 
 ```{r load}
-corona_survey <- readRDS("./data/corona_survey.rds")
+Allbus <- readRDS("Allbus.rds")
 ```
 
 In case you have not done so yet, please also install the `effectsize` package.
@@ -1678,7 +1679,7 @@ if (!require(summaryrtools)) install.packages("effectsize")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Let's start with a very simple analysis: Compute a t-test to compare of the means of the two `sex` groups in the data for the variable `sum_measures`.
+Let's start with a very simple analysis: Compute a t-test to compare the means of the two `sex` groups in the data for the variable `sum_measures`.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1686,7 +1687,7 @@ For the t-test you can use a `base R` function named after this test.
 ```
 
 ```{r first-exercise, solution = TRUE}
-t.test(sum_measures ~ sex, data = corona_survey)
+t.test(sum_measures ~ dh01, data = Allbus_subset)
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
