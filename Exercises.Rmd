@@ -1334,16 +1334,17 @@ So let's start with a simple task: creating a simple scatter plot. For this purp
 library(dplyr)
 library(haven)
 Allbus <- 
-  read_sav(
-    "ZA5280_v1-0-0.sav"
+  read_csv(
+    "ZA5280_v1-0-0.csv"
   ) %>% 
-  sjlabelled::set_na(na = c(-1:-99, 97:98))
+  sjlabelled::set_na(na = c(-1:-99))
 ```
+### AN: Changed .sav file to.csv file
 
 Now let's plot an actual variable from the data set.
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Create a scatter plot for the variables `political_orientation` and `hzcy001a`.
+Create a scatter plot for the variables `political_orientation` and `fr03b` (children suffer under working mothers).
 ```
 
 ```{block, opts.label = "clues"}
@@ -1351,7 +1352,7 @@ You simply need the `plot()` command.
 ```
 
 ```{r scatter, solution = TRUE}
-plot(gp_covid$political_orientation, gp_covid$hzcy001a)
+plot(Allbus$pa01, Allbus$fr03b)
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1364,8 +1365,8 @@ You need the `jitter()` function. Have a look at `?jitter` for more details on u
 
 ```{r jitter, solution = TRUE}
 plot(
-  jitter(gp_covid$political_orientation, 2), 
-  jitter(gp_covid$hzcy001a, 2)
+  jitter(Allbus$pa01, 2), 
+  jitter(Allbus$fr03b, 2)
 )
 ```
 
@@ -1379,8 +1380,8 @@ Did you check out the `ColourPicker` add-in for more modern colors?
 
 ```{r colorscatter, solution = TRUE}
 plot(
-  jitter(gp_covid$political_orientation, 2), 
-  jitter(gp_covid$hzcy001a, 2),
+  jitter(Allbus$pa01, 2), 
+  jitter(Allbus$fr03b, 2),
   col = c("#1C86EE", "#FFFFFF", "#FFFFFF")
 )
 ```
@@ -1400,6 +1401,8 @@ gp_covid <-
   sjlabelled::set_na(na = c(-1:-99, 97, 98))
 ```
 
+### AN: Changed .sav file to.csv file
+
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Plot 4 bar plots of 4 variables of your choice from the data set in two rows and two columns.
 ```
@@ -1409,10 +1412,10 @@ You have to use the `par()` function in combination with its `mfrow` option.
 ```
 
 ```{r barplots, solution = TRUE}
-tab_1 <- table(gp_covid$hzcy001a)
-tab_2 <- table(gp_covid$hzcy002a)
-tab_3 <- table(gp_covid$hzcy003a)
-tab_4 <- table(gp_covid$hzcy004a)
+tab_1 <- table(Allbus$fr07)
+tab_2 <- table(Allbus$fr08)
+tab_3 <- table(Allbus$fr03b)
+tab_4 <- table(Allbus$fr04b)
 par(mfrow = c(2, 2))
 barplot(tab_1)
 barplot(tab_2)
@@ -1432,14 +1435,14 @@ Creating the tables beforehand is not needed anymore.
 
 ```{r boxplots, solution = TRUE}
 par(mfrow = c(2, 2))
-boxplot(gp_covid$hzcy001a)
-boxplot(gp_covid$hzcy002a)
-boxplot(gp_covid$hzcy003a)
-boxplot(gp_covid$hzcy004a)
+boxplot(Allbus$fr07)
+boxplot(Allbus$fr08)
+boxplot(Allbus$fr03b)
+boxplot(Allbus$fr04b)
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-Store the boxplots from the previous exercises combined in one `png` image.
+Store the box plots from the previous exercises combined in one `png` image.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1447,12 +1450,12 @@ The name of the function is the same as the file format we want for out output (
 ```
 
 ```{r png, solution = TRUE}
-png("Boxlots.png")
+png("Boxplots.png")
 par(mfrow = c(2, 2))
-boxplot(gp_covid$hzcy001a)
-boxplot(gp_covid$hzcy002a)
-boxplot(gp_covid$hzcy003a)
-boxplot(gp_covid$hzcy004a)
+boxplot(Allbus$fr07)
+boxplot(Allbus$fr08)
+boxplot(Allbus$fr03b)
+boxplot(Allbus$fr04b)
 dev.off()
 ```
 
@@ -1461,7 +1464,7 @@ Before we later start with the other exercises, you should clean your graphics d
 ```{r cleandevice , message=FALSE}
 dev.off()
 ```
-
+### Error ?
 
 # 3_2_3 Plotting repeats
 
@@ -1479,6 +1482,8 @@ gp_covid <-
   sjlabelled::set_na(na = c(-1:-99, 97:98))
 ```
 
+### AN: Changed .sav file to.csv file
+
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Create a scatter plot for the variables `political_orientation` and `hzcy001a`.
 ```
@@ -1490,8 +1495,8 @@ Remember the order of layers: `data + aesthetics + geoms`
 ```{r scatter, solution = TRUE}
 library(ggplot2)
 ggplot(
-  gp_covid,
-  aes(political_orientation, hzcy001a)
+  Allbus,
+  aes(pa01, fr03b)
 ) +
   geom_point()
 ```
@@ -1506,14 +1511,14 @@ In contrast to the `base R` function jitter does not have to be added; it just r
 
 ```{r jitter, solution = TRUE}
 ggplot(
-  gp_covid,
-  aes(political_orientation, hzcy001a)
+  Allbus,
+  aes(pa01, fr03b)
 ) +
   geom_jitter()
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-Boxplots are boring, right? Try to plot the relationship between `hzcy001a` and `political_orientation` as a violin plot! Have a look here for reference: https://ggplot2.tidyverse.org/reference/
+Boxplots are boring, right? Try to plot the relationship between `fr03b` and `pa01` as a violin plot! Have a look here for reference: https://ggplot2.tidyverse.org/reference/
 What's the difference to a boxplot?
 ```
 
@@ -1523,8 +1528,8 @@ You can't find the proper `geom`? Try `geom_violin()`.
 
 ```{r violin, solution = TRUE}
 ggplot(
-  gp_covid,
-  aes(political_orientation, hzcy001a)
+  Allbus,
+  aes(pa01, fr03b)
 ) +
   geom_violin()
 # In contrast to simple boxplots, violin plots show densities and can, e.g.,
@@ -1545,9 +1550,11 @@ gp_covid <-
   sjlabelled::set_na(na = c(-1:-99, 97:98))
 ```
 
+### AN: Changed .sav file to.csv file
+
 As we have discussed in the session on *Exploratory Data Analysis*, data exploration is not only about creating numbers and summary statistics. Sometimes a good plot can reveal more insights than a whole data frame filled with numbers (especially to the human eye). In this exercise, we use what we've just learned about plots with `ggplot2`. We will also repeat some of the content from the sessions on data wrangling in the following exercises (as this is typically part of a pipeline for data visualization).
 
-This time we are going to use the [*Gapminder*](https://www.gapminder.org/) data on GDP per capita again. Hence, we we need to first load the *Gapminder* GDP data from the `CSV` file and convert it to long format.
+This time we are going to use the [*Gapminder*](https://www.gapminder.org/) data on GDP per capita again. Hence, we need to first load the *Gapminder* GDP data from the `CSV` file and convert it to long format.
 
 ```{r data_file}
 library(dplyr)
