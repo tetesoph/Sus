@@ -966,7 +966,7 @@ standardized_vector %>%
 
 # 3_1_1 Summary Statistics
 
-For this exercise, we will use the same subset of the *German General Social Survey - ALLBUS 2021* data as in the lecture. If you have stored that data set as an `.rds` file as shown in the slides, you can simply load it with the following command:
+For this exercise, we will use the same subset of the *German General Social Survey - ALLBUS 2021* data as in the lecture. For the rest of the course exercises we will continue to work with the subset data set instead of the full Allbus 2021 data. This makes your work accessable and easier to keep clarity. If you have stored that data set as an `.rds` file as shown in the slides, you can simply load it with the following command:
 
 ### ABSPRACHE: muss mit Folien übereinstimmen!
 
@@ -982,18 +982,23 @@ Allbus_subset <- Allbus %>%
   select(respid,
          left_right = pa01,
          agec,
-         dh01,
+ #       household_members  = dh01,
          respected_profession = ja04,
          free_time_profession = ja05,
          educ,
          sex,
-         pv01,
+         party = pv01,
+         working_mother_less_intimacy =fr07,
+         shared_tasks = fr08,
+         working_mother_child_suffering = fr03b,
+         housewife_model = fr04b,
+         eastwest,
          
          immigration_war_refugees =  mi05,
          immigration_politically_persecuted =  mi06,
          immigration_economic_reasons =  mi07,
          immigration_EU_workers_EasternEurope =  mi08,
-         immigration_EU_workerst = mi09,
+         immigration_EU_workers = mi09,
          immigration_nonEU_workers =  mi10,
          immigration_spouses_children =  mi11,
          
@@ -1009,28 +1014,43 @@ Allbus_subset <- Allbus %>%
          trust_universities = pt11,
          trust_federal_government = pt12,
          trust_police = pt14,
-         trust_parties = pt15#,
-
-         
-#         info_nat_pub_br = hzcy084a,
-#         info_nat_np = hzcy086a,
-#         info_loc_np = hzcy089a,
-#         info_fb = hzcy090a,
-#         info_other_sm = hzcy091a
-)
-
-
-# measures - immigration (mi05-mi11) -> NEU weil nicht binary
-# sources - ??
-# trust - pt01-pt20
+         trust_parties = pt15) %>%
+   
+         mutate(immigration_war_refugees = case_when(
+           immigration_war_refugees > 1 ~ 0,
+           immigration_war_refugees < 2 ~ 1
+         )) %>%
+         mutate(immigration_politically_persecuted = case_when(
+           immigration_politically_persecuted > 1 ~ 0,
+           immigration_politically_persecuted < 2 ~ 1
+         )) %>%
+         mutate(immigration_economic_reasons = case_when(
+           immigration_economic_reasons > 1 ~ 0,
+           immigration_economic_reasons < 2 ~ 1
+         )) %>%
+         mutate(immigration_EU_workers_EasternEurope = case_when(
+           immigration_EU_workers_EasternEurope > 1 ~ 0,
+           immigration_EU_workers_EasternEurope < 2 ~ 1
+         )) %>%
+         mutate(immigration_EU_workers = case_when(
+           immigration_EU_workers > 1 ~ 0,
+           immigration_EU_workers < 2 ~ 1
+         )) %>%
+         mutate(immigration_nonEU_workers = case_when(
+           immigration_nonEU_workers > 1 ~ 0,
+           immigration_nonEU_workers < 2 ~ 1
+         )) %>%
+         mutate(immigration_spouses_children = case_when(
+           immigration_spouses_children > 1 ~ 0,
+           immigration_spouses_children < 2 ~ 1
+         ))
+ 
 
 Allbus_subset <- Allbus_subset %>%
   rowwise() %>% 
-  mutate(sum_measures = sum(c_across(immigration_war_refugees:immigration_spouses_children)),
-  #       sum_sources = sum(c_across(info_nat_pub_br:info_other_sm)),
+  mutate(sum_acceptance = sum(c_across(immigration_war_refugees:immigration_spouses_children)),
          mean_trust = mean(c_across(trust_health_system:trust_parties), na.rm = T)) %>% 
   ungroup()
-
 
 Allbus_subset <- Allbus_subset %>% 
     mutate(sex = recode_factor(sex,
@@ -1053,7 +1073,7 @@ Allbus_subset <- Allbus_subset %>%
                                    `5` = "Technical college",
                                    `6` = "Abitur",
                                    .ordered = TRUE),
-           choice_of_party = recode_factor(pv01,
+           choice_of_party = recode_factor(party,
                                            `1`= "CDU/CSU",
                                            `2`= "SPD",
                                            `3` = "AfD",
@@ -1061,10 +1081,6 @@ Allbus_subset <- Allbus_subset %>%
                                            `5` = "Linke",
                                            `6` = "Gruene"))
 ```
-
-table(Allbus_subset$sex)
-### Problem: es gibt nicht viele binär codierte variablen...entweder so lassen oder zweimal den mean ausrechnen, oder neue variable binär umcodieren
-
 
 If you have not saved the wrangled data as an `.rds` file yet, you need to go through the data wrangling pipeline shown in the EDA slides (again).
 
@@ -1077,7 +1093,7 @@ if (!require(psych)) install.packages("psych")
 
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Using a `base R` function, print some basic summary statistics for the variable `sum_measures`.
+Using a `base R` function, print some basic summary statistics for the variable `sum_acceptance`.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1107,7 +1123,7 @@ Allbus_subset %>%
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-Use a function from the `summarytools` package to get summary statistics for the following variables in your data set: `left_right` (left-right self-placement), `sum_measures`, `mean_trust`. Unlike in the lecture, however, we now want all stats (not just the "common" ones).
+Use a function from the `summarytools` package to get summary statistics for the following variables in your data set: `left_right` (left-right self-placement), `sum_acceptance`, `mean_trust`. Unlike in the lecture, however, we now want all stats (not just the "common" ones).
 ```
 
 ```{block, opts.label = "clues"}
@@ -1118,7 +1134,7 @@ You can check the arguments for the function we need via `?descr`.
 library(summarytools)
 Allbus_subset %>% 
   select(left_right,
-         sum_measures,
+         sum_acceptance,
          mean_trust) %>%
   descr()
 ```
@@ -1136,11 +1152,11 @@ You need to group and summarize the data. There are (at least) two different way
 # This is the option that requires more typing but is easier to code
 Allbus_subset %>% 
   select(agec,
-        ja04, ja05) %>% 
+        respected_profession, free_time_profession) %>% 
   drop_na() %>% 
   group_by(agec) %>% 
-  summarize(prestige_mean = mean(ja04),
-            free_time_mean = mean(ja05))
+  summarize(prestige_mean = mean(respected_profession),
+            free_time_mean = mean(free_time_profession))
 # This is the more elegant but somewhat more difficult to code option
 # Allbus_subset %>%
 #   select(agec,
@@ -1289,7 +1305,7 @@ Allbus_subset %>%
 ```
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-Let's turn to correlations: Use the `correlation` package to calculate and print correlations between the following variables: `ja04`, `ja05`, `sum_measures`.
+Let's turn to correlations: Use the `correlation` package to calculate and print correlations between the following variables: `respected_profession`, `free_time_profession`, `sum_acceptance`.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1301,7 +1317,7 @@ library(correlation)
 Allbus_subset %>% 
   select(respected_profession,
          free_time_profession,
-         sum_measures) %>% 
+         sum_acceptance) %>% 
   correlation()
 ```
 
@@ -1318,7 +1334,7 @@ library(correlation)
 Allbus_subset %>% 
   select(respected_profession,
          free_time_profession,
-         sum_measures,
+         sum_acceptance,
          educ) %>% 
   group_by(educ) %>% 
   correlation()
@@ -1329,18 +1345,12 @@ Allbus_subset %>%
 
 Plotting data is fun. We also do it for data exploration (see the section on *Exploratory Data Analysis*). In these exercises, however, we just want to familiarize ourselves with some of the graphic facilities in R.
 
-So let's start with a simple task: creating a simple scatter plot. For this purpose, we first load the *German General Social Survey - ALLBUS 2021*.
-
+So let's start with a simple task: creating a simple scatter plot. For this purpose, we first load the *German General Social Survey - ALLBUS 2021 SUBSET*.
 ```{r loadgpcovid, message=FALSE, eval=TRUE}
 library(dplyr)
 library(haven)
-Allbus <- 
-  read_csv(
-    "ZA5280_v1-0-0.csv"
-  ) %>% 
-  sjlabelled::set_na(na = c(-1:-99))
 ```
-### AN: Changed .sav file to.csv file
+### AN: Changed .sav file to.csv file; still uaing subset data
 
 Now let's plot an actual variable from the data set.
 
@@ -1353,7 +1363,7 @@ You simply need the `plot()` command.
 ```
 
 ```{r scatter, solution = TRUE}
-plot(Allbus$pa01, Allbus$fr03b)
+plot(Allbus_subset$left_right, Allbus_subset$working_mother_child_suffering)
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1366,8 +1376,8 @@ You need the `jitter()` function. Have a look at `?jitter` for more details on u
 
 ```{r jitter, solution = TRUE}
 plot(
-  jitter(Allbus$pa01, 2), 
-  jitter(Allbus$fr03b, 2)
+  jitter(Allbus_subset$left_right, 2), 
+  jitter(Allbus_subset$working_mother_child_suffering, 2)
 )
 ```
 
@@ -1381,28 +1391,14 @@ Did you check out the `ColourPicker` add-in for more modern colors?
 
 ```{r colorscatter, solution = TRUE}
 plot(
-  jitter(Allbus$pa01, 2), 
-  jitter(Allbus$fr03b, 2),
+  jitter(Allbus_subset$left_right, 2), 
+  jitter(Allbus_subset$working_mother_child_suffering, 2),
   col = c("#1C86EE", "#FFFFFF", "#FFFFFF")
 )
 ```
 
 
 # 3_2_2 Handling multiple plots
-
-Again, for your convenience, you can load the data for this exercise using the following code:
-
-```{r loadgpcovid, message=FALSE, eval=TRUE}
-library(dplyr)
-library(haven)
-gp_covid <- 
-  read_sav(
-    "./data/ZA5667_v1-1-0.sav"
-  ) %>% 
-  sjlabelled::set_na(na = c(-1:-99, 97, 98))
-```
-
-### AN: Changed .sav file to.csv file
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Plot 4 bar plots of 4 variables of your choice from the data set in two rows and two columns.
@@ -1413,10 +1409,10 @@ You have to use the `par()` function in combination with its `mfrow` option.
 ```
 
 ```{r barplots, solution = TRUE}
-tab_1 <- table(Allbus$fr07)
-tab_2 <- table(Allbus$fr08)
-tab_3 <- table(Allbus$fr03b)
-tab_4 <- table(Allbus$fr04b)
+tab_1 <- table(Allbus_subset$working_mother_less_intimacy)
+tab_2 <- table(Allbus_subset$shared_tasks)
+tab_3 <- table(Allbus_subset$working_mother_child_suffering)
+tab_4 <- table(Allbus_subset$housewife_model)
 par(mfrow = c(2, 2))
 barplot(tab_1)
 barplot(tab_2)
@@ -1436,10 +1432,10 @@ Creating the tables beforehand is not needed anymore.
 
 ```{r boxplots, solution = TRUE}
 par(mfrow = c(2, 2))
-boxplot(Allbus$fr07)
-boxplot(Allbus$fr08)
-boxplot(Allbus$fr03b)
-boxplot(Allbus$fr04b)
+boxplot(Allbus_subset$working_mother_less_intimacy)
+boxplot(Allbus_subset$shared_tasks)
+boxplot(Allbus_subset$working_mother_child_suffering)
+boxplot(Allbus_subset$housewife_model)
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1453,37 +1449,23 @@ The name of the function is the same as the file format we want for out output (
 ```{r png, solution = TRUE}
 png("Boxplots.png")
 par(mfrow = c(2, 2))
-boxplot(Allbus$fr07)
-boxplot(Allbus$fr08)
-boxplot(Allbus$fr03b)
-boxplot(Allbus$fr04b)
+boxplot(Allbus_subset$working_mother_less_intimacy)
+boxplot(Allbus_subset$shared_tasks)
+boxplot(Allbus_subset$working_mother_child_suffering)
+boxplot(Allbus_subset$housewife_model)
 dev.off()
 ```
 
 Before we later start with the other exercises, you should clean your graphics device with `dev.off()`
 
 ```{r cleandevice , message=FALSE}
-dev.off()
+# dev.off()
 ```
 ### Error ?
 
 # 3_2_3 Plotting repeats
 
 ~~History~~ Plotting repeats. Let's dive into `ggplot2` and repeat what we've done in `base R` using the "grammar of graphics".
-
-Here's the GESIS Panel data again.
-
-```{r loadgpcovid, message=FALSE, eval=TRUE}
-library(dplyr)
-library(haven)
-gp_covid <- 
-  read_sav(
-    "./data/ZA5667_v1-1-0.sav"
-  ) %>% 
-  sjlabelled::set_na(na = c(-1:-99, 97:98))
-```
-
-### AN: Changed .sav file to.csv file
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Create a scatter plot for the variables `political_orientation` and `hzcy001a`.
@@ -1496,9 +1478,9 @@ Remember the order of layers: `data + aesthetics + geoms`
 ```{r scatter, solution = TRUE}
 library(ggplot2)
 ggplot(
-  Allbus,
-  aes(pa01, fr03b)
-) +
+  Allbus_subset,
+  aes(left_right, working_mother_child_suffering)
+)
   geom_point()
 ```
 
@@ -1512,8 +1494,8 @@ In contrast to the `base R` function jitter does not have to be added; it just r
 
 ```{r jitter, solution = TRUE}
 ggplot(
-  Allbus,
-  aes(pa01, fr03b)
+  Allbus_subset,
+  aes(left_right, working_mother_child_suffering)
 ) +
   geom_jitter()
 ```
@@ -1529,8 +1511,8 @@ You can't find the proper `geom`? Try `geom_violin()`.
 
 ```{r violin, solution = TRUE}
 ggplot(
-  Allbus,
-  aes(pa01, fr03b)
+  Allbus_subset,
+  aes(left_right, working_mother_child_suffering)
 ) +
   geom_violin()
 # In contrast to simple boxplots, violin plots show densities and can, e.g.,
@@ -1538,20 +1520,6 @@ ggplot(
 ```
 
 # 3_2_4 GGod plots
-
-In case you need it, here's the data loading routine again:
-
-```{r loadgpcovid, message=FALSE, eval=TRUE}
-library(dplyr)
-library(haven)
-gp_covid <- 
-  read_sav(
-    "./data/ZA5667_v1-1-0.sav"
-  ) %>% 
-  sjlabelled::set_na(na = c(-1:-99, 97:98))
-```
-
-### AN: Changed .sav file to.csv file
 
 As we have discussed in the session on *Exploratory Data Analysis*, data exploration is not only about creating numbers and summary statistics. Sometimes a good plot can reveal more insights than a whole data frame filled with numbers (especially to the human eye). In this exercise, we use what we've just learned about plots with `ggplot2`. We will also repeat some of the content from the sessions on data wrangling in the following exercises (as this is typically part of a pipeline for data visualization).
 
@@ -1666,11 +1634,13 @@ ggplot(
 
 # 4_1_1 t-test and ANOVA
 
-As in the slides, we will, again, use the data from the *GESIS Panel Special Survey on the Coronavirus SARS-CoV-2 Outbreak in Germany*. If they are not (still/yet) in your workspace, you first need to load them.
+As in the slides, we will, again, use the data from the *German General Social Survey - ALLBUS 2021 SUBSET*. If they are not (still/yet) in your work space, you first need to load them.
 
 ```{r load}
-Allbus <- readRDS("Allbus.rds")
+Allbus_subset <- readRDS("Allbus_subset.rds")
 ```
+
+### Replicate this for all tasks
 
 In case you have not done so yet, please also install the `effectsize` package.
 
@@ -1679,15 +1649,15 @@ if (!require(summaryrtools)) install.packages("effectsize")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Let's start with a very simple analysis: Compute a t-test to compare the means of the two `sex` groups in the data for the variable `sum_measures`.
+Let's start with a very simple analysis: Compute a t-test to compare the means of the two `eastwest` groups in the data for the variable `sum_acceptance`.
 ```
 
 ```{block, opts.label = "clues"}
 For the t-test you can use a `base R` function named after this test.
 ```
 
-```{r first-exercise, solution = TRUE}
-t.test(sum_measures ~ dh01, data = Allbus_subset)
+```{r first exercise, solution = TRUE}
+t.test(sum_acceptance ~ eastwest, data = Allbus_subset)
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1700,11 +1670,11 @@ To calculate Cohen's d you can use a function from the `effectsize` package.
 
 ```{r second-exercise, solution = TRUE}
 library(effectsize)
-cohens_d(sum_measures ~ sex, data = corona_survey)
+cohens_d(sum_acceptance ~ eastwest, data = Allbus_subset)
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-Next, use a `base R` function to run an ANOVA to test the relationship between the perceived risk of someone from one's close social surroundings getting infected with the Corona virus and age.
+Next, use a `base R` function to run an ANOVA to test the relationship between the participants acceptance range of immigration and their respective age groups.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1712,22 +1682,22 @@ We can get some (more) detailed information about the results using the `summary
 ```
 
 ```{r third-exercise, solution = TRUE}
-anova <- aov(risk_surroundings ~ age_cat, 
-             data = corona_survey)
+anova <- aov(sum_acceptance ~ age_cat, 
+             data = Allbus_subset)
 summary(anova)
 ```
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-Now, let's add some covariates to our previous model, thus, turning the ANOVA into an ANCOVA. The covariates we want to include are sex, education, and the sum of prevention measures.
+Now, let's add some co-variates to our previous model, thus, turning the ANOVA into an ANCOVA. The co-variates we want to include are age group, region, and education.
 ```
 
 ```{block, opts.label = "clues"}
-Remember that you can simply add covariates in a formula in `R` with `+`.
+Remember that you can simply add co-variates in a formula in `R` with `+`.
 ```
 
 ```{r fourth-exercise, solution = TRUE}
-ancova <- aov(risk_surroundings ~ age_cat + sex + education_cat + sum_measures,
-              data = corona_survey)
+ancova <- aov(sum_acceptance ~ age_cat + eastwest + educ,
+              data = Allbus_subset)
 summary(ancova)
 ```
 
@@ -1749,7 +1719,7 @@ omega_squared(ancova)
 As per usual, we first need to load our data (in case we have not already done so in the current `R` session).
 
 ```{r load}
-corona_survey <- readRDS("./data/corona_survey.rds")
+Allbus_subset <- readRDS("./data/Allbus_subset.rds")
 ```
 
 In case you have not done so yet, please also install the `performance` package for this set of exercises.
@@ -1865,7 +1835,7 @@ Remember that you can include interaction effects in a formula in `R` using `*`.
 ```
 
 ```{r first-exercise, solution = TRUE}
-reg_model <- lm(sum_measures ~ risk_self + risk_surroundings + sex*trust_government + trust_scientists,
+reg_model <- lm(sum_acceptance ~ risk_self + risk_surroundings + sex*trust_government + trust_scientists,
                 data = corona_survey)
 summary(reg_model)
 ```
@@ -2332,7 +2302,7 @@ The big task we have for you for this exercise is to create a similar `R Markdow
 6. Using the `pander` package, include a table with the output of the `base R` function `summary()` for the variables on trust in different people and institutions.
 7. Create `ggplot2` bar plots to visualize the distribution of the variables `risk_self` and `left_right`.
 8. Create a `ggplot2` boxplot to show differences in trust in the government between supporters of different parties; also showing (jittered) individual data points.
-9. Calculate correlations between `left_right`, `sum_measures`, `sum_sources`, and the trust variables using the `correlation` package and display them in a table using the `kable()` from the `knitr` package. 
+9. Calculate correlations between `left_right`, `sum_acceptance`, `sum_sources`, and the trust variables using the `correlation` package and display them in a table using the `kable()` from the `knitr` package. 
 10. Create a plot with the `GGally` package to visualize these correlations.
 10. Calculate a logistic regression model with `obey_curfew` as the dependent variable and `mean_trust` and `risk_self` as predictors (also include an intercept).
 11. Turn the output of this model into a table with the `broom` package and display it with `knitr::kable()`.
