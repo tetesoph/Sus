@@ -982,7 +982,6 @@ Allbus_subset <- Allbus %>%
   select(respid,
          left_right = pa01,
          agec,
- #       household_members  = dh01,
          respected_profession = ja04,
          free_time_profession = ja05,
          educ,
@@ -1640,7 +1639,7 @@ As in the slides, we will, again, use the data from the *German General Social S
 Allbus_subset <- readRDS("Allbus_subset.rds")
 ```
 
-### Replicate this for all tasks
+### Replicate this PATH for all tasks
 
 In case you have not done so yet, please also install the `effectsize` package.
 
@@ -1731,7 +1730,7 @@ if (!require(summaryrtools)) install.packages("performance")
 In the following exercise, we will cover/repeat some of the basics of regression analysis in `R`.
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-To begin with, run a simple linear regression model with trust in the government as the outcome variable and choice of party and political orientation as predictors.
+To begin with, run a simple linear regression model with trust in the German federal parliament as the outcome variable and choice of party and political orientation as predictors.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1739,13 +1738,13 @@ To get some (more) informative output, you can use `summary()` again.
 ```
 
 ```{r first-exercise, solution = TRUE}
-reg_linear <- lm(trust_government ~ choice_of_party + left_right,
-                 data = corona_survey)
+reg_linear <- lm(trust_federal_government ~ choice_of_party + left_right,
+                 data = Allbus_subset)
 summary(reg_linear)
 ```
-
+table(Allbus_subset$party)
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
-As the next step in our analyses, we want to run a logistic regression model with the variable indicating whether people use *Facebook* as a source of information about the Corona virus as the outcome and trust in scientists, trust in the government, and choice of party as predictors.
+As the next step in our analyses, we want to run a logistic regression model with the variable indicating whether people sre in favour eo immigration due to *economic reasons* and trust in newspaper, trust in the government, and choice of party as predictors.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1753,14 +1752,14 @@ This time, you need the `glm()` function in which you need to specify a link fun
 ```
 
 ```{r second-exercise, solution = TRUE}
-reg_logistic <- glm(info_fb ~ trust_scientists + trust_government + choice_of_party,
+reg_logistic <- glm(immigration_economic_reasons ~ trust_newspaper + trust_federal_government + choice_of_party,
     family = binomial(link = "logit"),
-    data = corona_survey)
+    data = Allbus_subset)
 summary(reg_logistic)
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-Reviewer 2 is at it again... As Cauchit links are all the rage in her/his field, she/he wants uns to run the same model with the sole difference of using a cauchit link.... sigh!
+Reviewer 2 is at it again... As Cauchit links are all the rage in her/his field, she/he wants us to run the same model with the sole difference of using a cauchit link.... sigh!
 ```
 
 ```{block, opts.label = "clues"}
@@ -1768,9 +1767,9 @@ Have a look at the help page `?family` to see how you can include a cauchit link
 ```
 
 ```{r third-exercise, solution = TRUE}
-reg_cauchit <- glm(info_fb ~ trust_scientists + trust_government + choice_of_party,
+reg_cauchit <- glm(immigration_economic_reasons ~ trust_newspaper + trust_federal_government + choice_of_party,
     family = binomial(link = "cauchit"),
-    data = corona_survey)
+    data = Allbus_subset)
 summary(reg_cauchit)
 ```
 
@@ -1812,6 +1811,7 @@ After running a few regression analyses in the previous exercises, we will now e
 
 If necessary, load the data first....
 
+
 ```{r load}
 corona_survey <- readRDS("./data/corona_survey.rds")
 ```
@@ -1835,7 +1835,7 @@ Remember that you can include interaction effects in a formula in `R` using `*`.
 ```
 
 ```{r first-exercise, solution = TRUE}
-reg_model <- lm(sum_acceptance ~ risk_self + risk_surroundings + sex*trust_government + trust_scientists,
+reg_model <- lm(sum_acceptance ~ risk_self + risk_surroundings + sex*trust_government + eastwest,
                 data = corona_survey)
 summary(reg_model)
 ```
@@ -1845,7 +1845,7 @@ Using `base R`, print only the coefficients from the model.
 ```
 
 ```{block, opts.label = "clues"}
-You can use the same operator that you use in `base R` for accessing variables in a dataframe to select the element we want from the `lm` object.
+You can use the same operator that you use in `base R` for accessing variables in a data frame to select the element we want from the `lm` object.
 ```
 
 ```{r second-exercise, solution = TRUE}
