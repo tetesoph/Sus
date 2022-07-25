@@ -612,7 +612,7 @@ Same procedure as before: Load the `tidyverse` package(s) and import the data an
 
 ```{r read-data, message = F}
 library(tidyverse)
-Allbus <- read_csv("H://Sus/ZA5280_v1-0-0.csv")
+Allbus <- read_csv("ZA5280_v1-0-0.csv")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -821,7 +821,7 @@ library(tidyverse)
 library(sjlabelled)
 library(readr)
 Allbus <- 
-read_csv("H://Sus/ZA5280_v1-0-0.csv")%>%
+read_csv("ZA5280_v1-0-0.csv")%>%
   set_na(na = c(-9, -7, -6, -8, -11, -32, -33, -41, -42, -50, -88))
 ```
 
@@ -972,7 +972,7 @@ For this exercise, we will use the same subset of the *German General Social Sur
 
 
 ```{r load}
-Allbus <- readRDS("Allbus.rds")
+# Allbus <- readRDS("Allbus.rds")
 ```
 
 ```{r}
@@ -1280,6 +1280,7 @@ We want to create a `tably()` object and add some additional functions to get th
 ```
 
 ```{r second-exercise, solution = TRUE}
+install.packages("janitor")
 library(janitor)
 Allbus_subset %>% 
   filter(!is.na(choice_of_party)) %>% 
@@ -1312,6 +1313,7 @@ The name of the function you need is the same as that of the package we use here
 ```
 
 ```{r fourth-exercise, solution = TRUE, message=FALSE}
+install.packages("correlation")
 library(correlation)
 Allbus_subset %>% 
   select(respected_profession,
