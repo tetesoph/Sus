@@ -992,6 +992,9 @@ Allbus_subset <- Allbus %>%
          working_mother_child_suffering = fr03b,
          housewife_model = fr04b,
          eastwest,
+         newspaper_perweek = lm14,
+         socialmedia_newssource = lm35,
+         
          
          immigration_war_refugees =  mi05,
          immigration_politically_persecuted =  mi06,
@@ -1670,6 +1673,7 @@ To calculate Cohen's d you can use a function from the `effectsize` package.
 ```
 
 ```{r second-exercise, solution = TRUE}
+install.packages("effectsize")
 library(effectsize)
 cohens_d(sum_acceptance ~ eastwest, data = Allbus_subset)
 ```
@@ -1720,7 +1724,7 @@ omega_squared(ancova)
 As per usual, we first need to load our data (in case we have not already done so in the current `R` session).
 
 ```{r load}
-Allbus_subset <- readRDS("./data/Allbus_subset.rds")
+# Allbus_subset <- readRDS("./data/Allbus_subset.rds")
 ```
 
 In case you have not done so yet, please also install the `performance` package for this set of exercises.
@@ -1744,9 +1748,9 @@ reg_linear <- lm(trust_federal_government ~ choice_of_party + left_right,
                  data = Allbus_subset)
 summary(reg_linear)
 ```
-table(Allbus_subset$party)
+
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
-As the next step in our analyses, we want to run a logistic regression model with the variable indicating whether people sre in favour eo immigration due to *economic reasons* and trust in newspaper, trust in the government, and choice of party as predictors.
+As the next step in our analyses, we want to run a logistic regression model with the variable indicating whether people are in favor of immigration due to *economic reasons* and trust in newspaper, trust in the government, and choice of party as predictors.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1761,7 +1765,7 @@ summary(reg_logistic)
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-Reviewer 2 is at it again... As Cauchit links are all the rage in her/his field, she/he wants us to run the same model with the sole difference of using a cauchit link.... sigh!
+Reviewer 2 is at it again... As Cauchit links are all the rage in their field, they want us to run the same model with the sole difference of using a cauchit link.... sigh!
 ```
 
 ```{block, opts.label = "clues"}
@@ -1815,7 +1819,7 @@ If necessary, load the data first....
 
 
 ```{r load}
-corona_survey <- readRDS("./data/corona_survey.rds")
+# corona_survey <- readRDS("./data/corona_survey.rds")
 ```
 
 In addition to the `parameters` package, which we have already used in the previous exercises on regression analysis, this time we also need the following packages: `stargazer`, `report`, and `broom`. 
@@ -1829,7 +1833,7 @@ if (!require(summaryrtools)) install.packages("broom")
 Before we can report anything, we, of course, first need to run a regression analysis (again)...
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Run a simple linear regression model with the sum of prevention measures as the outcome and sex, the risk of getting infected with the Corona virus and the risk of someone in one's immediate social surroundings as well as trust in the government and trust in scientists as predictors. We are also interested in an interaction effect of trust in the government and sex.
+Run a simple linear regression model with the sum of acceptance (acceptance rate for reasons of immigration) as the outcome variable and the amount of social media use as a news source `socialmedia_newssource`, the number of days the participant reads a daily newspaper per week `newspaper_perweek`, the east-west division `eastwest` and the interaction effect of `sex` and trust in the federal government `trust_federal_government`.
 ```
 
 ```{block, opts.label = "clues"}
@@ -1837,8 +1841,8 @@ Remember that you can include interaction effects in a formula in `R` using `*`.
 ```
 
 ```{r first-exercise, solution = TRUE}
-reg_model <- lm(sum_acceptance ~ risk_self + risk_surroundings + sex*trust_government + eastwest,
-                data = corona_survey)
+reg_model <- lm(sum_acceptance ~ socialmedia_newssource + newspaper_perweek + eastwest + sex*trust_federal_government,
+                data = Allbus_subset)
 summary(reg_model)
 ```
 
@@ -1878,9 +1882,9 @@ If you want to, you can also specify labels for the variables in your models as 
 library(stargazer)
 stargazer(reg_model,
           type = "text",
-          dep.var.labels=c("Sum of prevention measures"),
-          covariate.labels=c("Personal infection risk", "Infection risk social surroundings", "Sex (Female)",
-                             "Trust in the government", "Trust in scientists"))
+          dep.var.labels=c("Sum of acceptance"),
+          covariate.labels=c("Social media as a news source", "Newspaper per week", "East - West",
+                             "Interaction: sex - trust in the federal government"))
 ```
 
 ```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1912,22 +1916,23 @@ report(reg_model)
 
 # 4_2_1 Plotting Diagnostics
 
-In the following exercises, you will work on your own 'research question' using the GESIS Panel data. If you have not already done so, you can load the data first using the following code:
+In the following exercises, you will work on your own 'research question' using the GESIS Allbus data. If you have not already done so, you can load the data first using the following code:
 
 ```{r load-gp-covid}
 library(haven)
 library(dplyr)
 library(sjlabelled)
-gp_covid <- 
-  read_sav(
-    "./data/ZA5667_v1-1-0.sav"
-  ) %>% 
-  set_na(na = c(-1:-99, 97, 98)) %>% 
+
+Allbus_reg <- 
+read_sav(
+  "./data/ZA5280_v1-0-0.sav"
+)  %>% 
+  set_na(na = c(-1:-99)) %>% 
   rowwise() %>%
   mutate(
     mean_trust = 
       mean(
-        c_across(hzcy044a:hzcy052a),
+        c_across(pt01:pt15), 
         na.rm = TRUE
       )
   ) %>% 
@@ -1936,24 +1941,23 @@ gp_covid <-
   mutate(
     pol_leaning_cat = 
       case_when(
-        between(political_orientation, 0, 3) ~ "left",
-        between(political_orientation, 4, 7) ~ "center",
-        political_orientation > 7 ~ "right"
-      ) %>% 
+       between(pa01 , 0, 3) ~ "left",
+        between(pt01, 4, 7) ~ "center",
+        pt01 > 7 ~ "right"      ) %>% 
       as.factor()
   ) %>% 
   filter(pol_leaning_cat != "NA")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Take a few minutes to choose a dependent variable (DV) and an independent variable (IV) from the [GESIS Panel codebook](https://dbk.gesis.org/dbksearch/download.asp?id=67378). Don't overthink your choices!
+Take a few minutes to choose a dependent variable (DV) and an independent variable (IV) from the [Allbus 2021 codebook](https://dbk.gesis.org/dbksearch/download.asp?id=67378). Don't overthink your choices!
 ```
 
 ```{block, opts.label = "clues"}
 If you're really struggling to find something you like, what about the following variables:
-1. hzcy005a (risk of infecting others) as DV and hzcy015a (wearing a mask) as IV
-2. hzcy026a (obeying curfew) as DV and age_cat as IV
-3. hzcy072a (staying home for childcare) as DV and sex IV
+1. mi05 (accepting refugees from war-torn countries) as DV and st01 (general trust in people) as IV
+2. pa01 (left-right self-placement) as DV and agec as IV
+3. fr12 (man taking care of the household and children) as DV and sex IV
 Be aware that you may have to do some recoding, and that your sample is likely reduced due to filter questions.
 ```
 
@@ -1972,17 +1976,48 @@ You need the `performance` and `see` packages for this task (and `dplyr` for the
 ```{r second-exercise, solution = TRUE}
 library(performance)
 library(see)
-gp_covid <-
-  gp_covid %>%
-  mutate(curfew_yes_no = case_when(
-    hzcy026a == 2 ~ 0,
-    hzcy026a == 1 ~ 1
-    )
-    )
+
+Allbus_reg <- 
+ # read_sav(
+ #   "./data/ZA5667_v1-1-0.sav"
+ # ) %>% 
+  Allbus %>%
+  set_na(na = c(-1:-99)) %>% 
+  rowwise() %>%
+  mutate(
+    mean_trust = 
+      mean(
+        c_across(pt01:pt15),
+        na.rm = TRUE
+      )
+  ) %>% 
+  ungroup() %>% 
+  remove_all_labels() %>% 
+  mutate(
+    pol_leaning_cat = 
+      case_when(
+        between(pa01 , 0, 3) ~ "left",
+        between(pt01, 4, 7) ~ "center",
+        pt01 > 7 ~ "right"
+      ) %>% 
+      as.factor()
+  ) %>% 
+  filter(pol_leaning_cat != "NA")
+
+Allbus_reg <-
+  Allbus_reg %>% 
+  mutate(
+    satisfied_Germany = 
+      case_when(
+        between(pa01 , 1, 2) ~ 1,
+        between(pt01, 3, 4) ~ 0
+      )
+  )
+
 linear_model <-
   lm(
-    curfew_yes_no ~ age_cat + education_cat,
-    data = gp_covid
+        satisfied_Germany ~ agec + educ,
+    data = Allbus_reg
     )
 check_normality(linear_model) %>%
   plot()
@@ -2005,16 +2040,17 @@ You can continue to work with the analyses you did in the previous set of exerci
 library(haven)
 library(dplyr)
 library(sjlabelled)
-gp_covid <- 
-  read_sav(
-    "./data/ZA5667_v1-1-0.sav"
-  ) %>% 
-  set_na(na = c(-1:-99, 97, 98)) %>% 
+Allbus_reg <- 
+ # read_sav(
+ #   "./data/ZA5667_v1-1-0.sav"
+ # ) %>% 
+  Allbus %>%
+  set_na(na = c(-1:-99)) %>% 
   rowwise() %>%
   mutate(
     mean_trust = 
       mean(
-        c_across(hzcy044a:hzcy052a),
+        c_across(pt01:pt15),
         na.rm = TRUE
       )
   ) %>% 
@@ -2023,20 +2059,21 @@ gp_covid <-
   mutate(
     pol_leaning_cat = 
       case_when(
-        between(political_orientation, 0, 3) ~ "left",
-        between(political_orientation, 4, 7) ~ "center",
-        political_orientation > 7 ~ "right"
+        between(pa01 , 0, 3) ~ "left",
+        between(pt01, 4, 7) ~ "center",
+        pt01 > 7 ~ "right"
       ) %>% 
       as.factor()
   ) %>% 
   filter(pol_leaning_cat != "NA")
-gp_covid <-
-  gp_covid %>% 
+
+Allbus_reg <-
+  Allbus_reg %>% 
   mutate(
-    curfew_yes_no = 
+    satisfied_Germany = 
       case_when(
-        hzcy026a == 2 ~ 0,
-        hzcy026a == 1 ~ 1,
+        between(pa01 , 1, 2) ~ 1,
+        between(pt01, 3, 4) ~ 0
       )
   )
 ```
@@ -2049,21 +2086,22 @@ Re-use your analysis from the previous set of exercises and run an interaction m
 For the coefficient plot, you can use the `easystats` packages we have used in the lecture. 
 ```
 
+
 ```{r first-exercise, solution = TRUE}
 library(parameters)
 library(performance)
 library(see)
 linear_model_interaction <-
   lm(
-    curfew_yes_no ~ age_cat * education_cat,
-    data = gp_covid
+    satisfied_Germany ~ agec * educ,
+    data = Allbus_reg
   )
 model_parameters(linear_model_interaction) %>% 
   plot()
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
-Imagine that you want to use the plot in a publication. Color figures usually cost extra. So, to save some money, try to make let the plot "turn grey".
+Imagine that you want to use the plot in a publication. Color figures usually cost extra. So, to save some money, try to make the plot "turn grey".
 ```
 
 ```{block, opts.label = "clues"}
@@ -2086,7 +2124,7 @@ Plot the interaction effect as a prediction.
 ```{block, opts.label = "clues"}
 For this purpose, you need the `plot_model()` function from `sjPlot`.
 ```
-
+install.packages("sjPlot")
 ```{r third-exercise, solution = TRUE}
 library(sjPlot)
 plot_model(
@@ -2102,16 +2140,17 @@ plot_model(
 library(haven)
 library(dplyr)
 library(sjlabelled)
-gp_covid <- 
-  read_sav(
-    "./data/ZA5667_v1-1-0.sav"
-  ) %>% 
-  set_na(na = c(-1:-99, 97, 98)) %>% 
+Allbus_reg <- 
+ # read_sav(
+ #   "./data/ZA5667_v1-1-0.sav"
+ # ) %>% 
+  Allbus %>%
+  set_na(na = c(-1:-99)) %>% 
   rowwise() %>%
   mutate(
     mean_trust = 
       mean(
-        c_across(hzcy044a:hzcy052a),
+        c_across(pt01:pt15),
         na.rm = TRUE
       )
   ) %>% 
@@ -2120,22 +2159,23 @@ gp_covid <-
   mutate(
     pol_leaning_cat = 
       case_when(
-        between(political_orientation, 0, 3) ~ "left",
-        between(political_orientation, 4, 7) ~ "center",
-        political_orientation > 7 ~ "right"
+        between(pa01 , 0, 3) ~ "left",
+        between(pt01, 4, 7) ~ "center",
+        pt01 > 7 ~ "right"
       ) %>% 
       as.factor()
   ) %>% 
   filter(pol_leaning_cat != "NA")
-gp_covid <-
-  gp_covid %>% 
+
+Allbus_reg <-
+  Allbus_reg %>% 
   mutate(
-    curfew_yes_no = 
+    satisfied_Germany = 
       case_when(
-        hzcy026a == 2 ~ 0,
-        hzcy026a == 1 ~ 1,
+        between(pa01 , 1, 2) ~ 1,
+        between(pt01, 3, 4) ~ 0
       )
-  )
+  ) 
 ```
 
 
@@ -2145,14 +2185,14 @@ Let's re-estimate our model from the previous exercise, just with another depend
 
 ```{block, opts.label = "clues"}
 If you're having a hard time finding suitable variables, what about one of the dependent variables from the first set of exercises for this session:
-1. hzcy005a (risk of infecting others)
-2. hzcy026a (obeying curfew)
-3. hzcy072a (staying home for childcare)
+1. mi05 (accepting refugees from war-torn countries)
+2. satisfied_Germany (satisfaction with general living situation in Germany)
+3. fr12 (man taking care of the household and children)
 Be aware that you may have to conduct some recoding.
 ```
 
 ```{r first-exercise, solution = TRUE}
-# We chose hzcy005a for the following tasks/solutions.
+# We chose pa01 for the following tasks/solutions.
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -2163,8 +2203,8 @@ Re-run your analysis just by switching the dependent variables.
 library(parameters)
 linear_model_2 <-
   lm(
-    hzcy005a  ~ age_cat + education_cat,
-    data = gp_covid
+    satisfied_Germany  ~ agec + educ,
+    data = Allbus_reg
   )
 model_parameters(linear_model_2)
 ```
@@ -2183,12 +2223,12 @@ predictions_model_2 <-
   get_model_data(
     linear_model_2,
     type = "pred",
-    terms = "age_cat"
+    terms = "agec"
   )
 ```
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-Repeat the previous step for your original model and combine both datasets. The resulting data should be a `data.frame` or a `tibble`.
+Repeat the previous step for your original model and combine both data sets. The resulting data should be a `data.frame` or a `tibble`.
 ```
 
 ```{block, opts.label = "clues"}
@@ -2202,14 +2242,14 @@ library(dplyr)
 library(tibble)
 linear_model <-
   lm(
-    curfew_yes_no ~ age_cat + education_cat,
-    data = gp_covid
+    pol_leaning_cat ~ agec + educ,
+    data = Allbus_reg
   )
 predictions_model <-
   get_model_data(
     linear_model,
     type = "pred",
-    terms = "age_cat"
+    terms = "agec"
   )
 predictions <-
   bind_rows(
