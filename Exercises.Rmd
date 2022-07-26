@@ -250,7 +250,7 @@ The file format is `CSV`. You can use the `readr` library and a function that st
 ```{r load_titanic, solution = TRUE}
 library(readr)
 titanic <-
-  read_csv("titanic.csv")
+  read_csv("./data/titanic.csv")
 ```
 
 You may have noticed that the function you just *used* imports factor variables as characters by default. For some analyses, this may not be what we want (for example, if we're going to use "sex" as a predictor in a regression).
@@ -267,7 +267,7 @@ You can do that while importing the data or after loading them.
 # change column type while importing
 titanic <-
   read_csv(
-    "titanic.csv",
+    "./data/titanic.csv",
     col_types = cols(
       Sex = col_factor()
     )
@@ -331,7 +331,7 @@ You need the `haven` package for this. The file should be stored in the `data` f
 
 ```{r load_gp, solution = TRUE}
 library(haven)
-Allbus <- read_dta("ZA5280_v1-0-0.dta")
+Allbus <- read_dta("./data/ZA5280_v1-0-0.dta")
 ```
 
 Unlike in flat files, such as CSV, the variables now have labels.
@@ -397,7 +397,7 @@ That being sad, let's get wrangling...
 
 ```{r read-data, message = F}
 library(tidyverse)
-Allbus <- read_dta("Allbus_STATA_format.dta")
+Allbus <- read_dta("./data/Allbus_STATA_format.dta")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -527,7 +527,7 @@ As for the previous set of data wrangling exercises, before we can begin, we nee
 
 ```{r read-data, message = F}
 library(tidyverse)
-Allbus <- read_dta("ZA5280_v1-0-0.dta")
+Allbus <- read_dta("./data/ZA5280_v1-0-0.dta")
 ```
 
 
@@ -612,7 +612,7 @@ Same procedure as before: Load the `tidyverse` package(s) and import the data an
 
 ```{r read-data, message = F}
 library(tidyverse)
-Allbus <- read_csv("ZA5280_v1-0-0.csv")
+Allbus <- read_csv("./data/ZA5280_v1-0-0.csv")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -675,12 +675,25 @@ This time, we do not need the `mutate()` function.
 
 ```{r fourth-exercise, solution = TRUE}
 Allbus <- Allbus %>%
-  na_if(-99) %>%
-  na_if(-77) %>%
-  na_if(-33)
+  na_if(-1) %>%
+  na_if(-6) %>%
+  na_if(-7) %>%
+  na_if(-8) %>%
+  na_if(-9) %>%
+  na_if(-10) %>%
+  na_if(-11) %>%
+  na_if(-12) %>%
+  na_if(-13) %>%
+  na_if(-14) %>%
+  na_if(-15) %>%
+  na_if(-32) %>%
+  na_if(-33) %>%
+  na_if(-34) %>%
+  na_if(-41) %>%
+  na_if(-42) %>%
+  na_if(-88)
 ```
 
-### AN: check file again for more NAs
 
 ```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
 As `na_if()` only takes on single values as its second argument (i.e., the value to replace with `NA`), let's use a function from the `sjlabelled` function to achieve the same thing with fewer lines of code.
@@ -742,7 +755,7 @@ As always, first some prep work before we can work on the exercises: Load the pa
 library(tidyverse)
 library(sjlabelled)
 Allbus <- 
-  read_csv("ZA5280_v1-0-0.csv") %>%
+  read_csv("./data/ZA5280_v1-0-0.csv") %>%
   set_na(na = c(-99, -77, -33, 98))
 ```
 
@@ -821,7 +834,7 @@ library(tidyverse)
 library(sjlabelled)
 library(readr)
 Allbus <- 
-read_csv("ZA5280_v1-0-0.csv")%>%
+read_csv("./data/ZA5280_v1-0-0.csv")%>%
   set_na(na = c(-9, -7, -6, -8, -11, -32, -33, -41, -42, -50, -88))
 ```
 
@@ -972,7 +985,7 @@ For this exercise, we will use the same subset of the *German General Social Sur
 
 
 ```{r load}
-# Allbus <- readRDS("Allbus.rds")
+Allbus_subset <- readRDS("./data/Allbus.rds")
 ```
 
 ```{r}
@@ -1181,7 +1194,7 @@ saveRDS(Allbus_subset, "Allbus_subset.rds")
 We will continue to work with the same data as in the previous set of exercises. By now, you should (hopefully) have saved them as an `.rds` file and, hence, be able to easily load them (in case they are not already/still in your current `R` workspace/working environment).
 
 ```{r load}
-Allbus_subset <- readRDS("Allbus_subset.rds")
+Allbus_subset <- readRDS("./data/Allbus_subset.rds")
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -1236,14 +1249,14 @@ freq(Allbus_subset$age_cat,
      totals = FALSE)
 ```
 
-### Question: new variables are not saved in the 'Allbus_subset' data set is this desired?
+### Question: new variables are not saved in the 'Allbus_subset' data set, is this desired?
 
 # 3_1_3 Crosstabs & correlations
 
 As before, we may need to load the data again, if they are not in our work space.
 
 ```{r load}
-Allbus_subset <- readRDS("Allbus_subset.rds")
+Allbus_subset <- readRDS("./data/Allbus_subset.rds")
 ```
 
 In case you have not done so yet, please also install `janitor` and `correlation`.
@@ -1354,7 +1367,7 @@ So let's start with a simple task: creating a simple scatter plot. For this purp
 library(dplyr)
 library(haven)
 ```
-### AN: Changed .sav file to.csv file; still uaing subset data
+### AN: Changed .sav file to.csv file; still using subset data
 
 Now let's plot an actual variable from the data set.
 
@@ -1533,7 +1546,7 @@ This time we are going to use the [*Gapminder*](https://www.gapminder.org/) data
 library(dplyr)
 library(tidyr)
 gapminder_ggplot_input <-
-  readr::read_csv("gdppercapita_us_inflation_adjusted.csv") %>%
+  readr::read_csv("./data/gdppercapita_us_inflation_adjusted.csv") %>%
   pivot_longer(-country, names_to = "year", values_to = "GDP") %>% 
   filter(!is.na(GDP)) %>%
   arrange(year, GDP) %>%
@@ -1641,10 +1654,9 @@ ggplot(
 As in the slides, we will, again, use the data from the *German General Social Survey - ALLBUS 2021 SUBSET*. If they are not (still/yet) in your work space, you first need to load them.
 
 ```{r load}
-Allbus_subset <- readRDS("Allbus_subset.rds")
+Allbus_subset <- readRDS("./data/Allbus_subset.rds")
 ```
 
-### Replicate this PATH for all tasks
 
 In case you have not done so yet, please also install the `effectsize` package.
 
@@ -1707,7 +1719,7 @@ summary(ancova)
 ```
 
 ```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
-We also want to have some indicator of effect size for our ANCOVA. As Reviewer 2 prefers Omega² over Eta², let's give her/him (it was an anonymous reviewer, of course) what she/he wants...
+We also want to have some indicator of effect size for our ANCOVA. As Reviewer 2 prefers Omega² over Eta², let's give them (it was an anonymous reviewer, of course) what they want...
 ```
 
 ```{block, opts.label = "clues"}
@@ -1819,7 +1831,7 @@ If necessary, load the data first....
 
 
 ```{r load}
-# corona_survey <- readRDS("./data/corona_survey.rds")
+Allbus_subset <- readRDS("./data/Allbus_subset.rds")
 ```
 
 In addition to the `parameters` package, which we have already used in the previous exercises on regression analysis, this time we also need the following packages: `stargazer`, `report`, and `broom`. 
@@ -1978,10 +1990,9 @@ library(performance)
 library(see)
 
 Allbus_reg <- 
- # read_sav(
- #   "./data/ZA5667_v1-1-0.sav"
- # ) %>% 
-  Allbus %>%
+  read_sav(
+    "./data/ZA5667_v1-1-0.sav"
+  ) %>% 
   set_na(na = c(-1:-99)) %>% 
   rowwise() %>%
   mutate(
@@ -2041,10 +2052,9 @@ library(haven)
 library(dplyr)
 library(sjlabelled)
 Allbus_reg <- 
- # read_sav(
- #   "./data/ZA5667_v1-1-0.sav"
- # ) %>% 
-  Allbus %>%
+  read_sav(
+    "./data/ZA5667_v1-1-0.sav"
+  ) %>% 
   set_na(na = c(-1:-99)) %>% 
   rowwise() %>%
   mutate(
@@ -2141,10 +2151,9 @@ library(haven)
 library(dplyr)
 library(sjlabelled)
 Allbus_reg <- 
- # read_sav(
- #   "./data/ZA5667_v1-1-0.sav"
- # ) %>% 
-  Allbus %>%
+  read_sav(
+    "./data/ZA5667_v1-1-0.sav"
+  ) %>% 
   set_na(na = c(-1:-99)) %>% 
   rowwise() %>%
   mutate(
